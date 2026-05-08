@@ -651,7 +651,7 @@ function buildPiano(){
     const lbl=document.createElement('span');
     lbl.className='key-label';
     // Show both note name and keyboard key
-    lbl.innerHTML=k.note.replace(/(\D+)(\d)/,'$1')+`<br>${k.kb.toUpperCase()}`;
+    lbl.textContent=k.note.replace(/(\D+)(\d)/,'$1');
     el.appendChild(lbl);
     if(k.type==='black'){
       el.style.left=(whiteCount*44-15)+'px';
@@ -665,14 +665,6 @@ function buildPiano(){
   });
   piano.style.width=(whiteCount*44)+'px';
 }
-
-// Keyboard listener
-window.addEventListener('keydown',e=>{
-  if(document.getElementById('stage-1').classList.contains('active')){
-    const k=PIANO_NOTES.find(x=>x.kb===e.key.toLowerCase());
-    if(k){const el=document.querySelector(`[data-note="${k.note}"]`);if(el)handleKeyPress(k.note,el);}
-  }
-});
 
 // Scale selector
 function populateScaleSelect(){
@@ -1250,8 +1242,8 @@ const LH=[
   {cx:232,cy:TUBE_Y+22,r:R,  label:'1'},  // L1 — below midpoint of L2(210)–L3(254), same y as R2/R4
   {cx:210,cy:TUBE_Y,   r:R,  label:'2'},  // L2
   {cx:254,cy:TUBE_Y,   r:R,  label:'3'},  // L3
-  {cx:294,cy:TUBE_Y,   r:R,  label:'4'},  // L4
-  {cx:305,cy:TUBE_Y-13,r:7,  label:'5'},  // L5 — upper-right 45° of L4, closer to centre-left (smaller)
+  {cx:298,cy:TUBE_Y,   r:R,  label:'4'},  // L4
+  {cx:334,cy:TUBE_Y-13,r:7,  label:'5'},  // L5 — upper-right 45° of L4, closer to centre-left (smaller)
 ];
 
 // ── Right hand (9 entries) ──
@@ -1261,15 +1253,14 @@ const LH=[
 // R7=keyC# teardrop, R8a/R8b=keyC stacked-hoval pair
 const RH_BASE_X=358;
 const RH=[
-  {cx:RH_BASE_X+0,   cy:TUBE_Y,    type:'circle',  r:R,       label:'2'},   // R1
-  {cx:RH_BASE_X+31,  cy:TUBE_Y+22, type:'circle',  r:8,       label:'A'},   // R2 — small, below midpoint R1/R3, same y as L1
-  {cx:RH_BASE_X+62,  cy:TUBE_Y,    type:'circle',  r:R,       label:'3'},   // R3
-  {cx:RH_BASE_X+93,  cy:TUBE_Y+22, type:'circle',  r:8,       label:'B'},   // R4 — small, below midpoint R3/R5, same y as L1/R2
-  {cx:RH_BASE_X+124, cy:TUBE_Y,    type:'circle',  r:R,       label:'4'},   // R5
-  {cx:RH_BASE_X+147, cy:TUBE_Y+17, type:'circle',  r:8,       label:'5'},   // R6 — small, lower-right 45° of R5
-  {cx:RH_BASE_X+180, cy:TUBE_Y,    type:'teardrop',r:R,       label:'C#'},  // R7
-  {cx:RH_BASE_X+210, cy:TUBE_Y-8,  type:'hoval',   rx:10,ry:7,label:'C'},   // R8-top
-  {cx:RH_BASE_X+210, cy:TUBE_Y+8,  type:'hoval',   rx:10,ry:7,label:''},    // R8-bottom
+  {cx:RH_BASE_X+10,  cy:TUBE_Y,    type:'circle',    r:R,         label:'2'},   // R1
+  {cx:RH_BASE_X+32,  cy:TUBE_Y+22, type:'circle',    r:8,         label:'A'},   // R2 — small, below midpoint R1/R3, same y as L1
+  {cx:RH_BASE_X+64,  cy:TUBE_Y,    type:'circle',    r:R,         label:'3'},   // R3
+  {cx:RH_BASE_X+93,  cy:TUBE_Y+22, type:'circle',    r:8,         label:'B'},   // R4 — small, below midpoint R3/R5, same y as L1/R2
+  {cx:RH_BASE_X+108, cy:TUBE_Y,    type:'circle',    r:R,         label:'4'},   // R5
+  {cx:RH_BASE_X+152, cy:TUBE_Y,    type:'teardrop',  r:R,         label:'5'},   // R6 — small, lower-right 45° of R5
+  {cx:RH_BASE_X+174, cy:TUBE_Y+8,  type:'hoval',     rx:5,ry:2,   label:'C#'},  // R7-bottom
+  {cx:RH_BASE_X+174, cy:TUBE_Y-8,  type:'hoval',     rx:5,ry:2,   label:'C'},   // R8-top
 ];
 
 function holeFill(closed){
@@ -1367,8 +1358,8 @@ function renderFluteMiniSVG(holes){
     {x:31,y:38,type:'circle'}, // L1 below midpoint
     {x:22,y:29,type:'circle'}, // L2
     {x:40,y:29,type:'circle'}, // L3
-    {x:56,y:29,type:'circle'}, // L4
-    {x:63,y:18,type:'small'},  // L5 upper-right
+    {x:58,y:29,type:'circle'}, // L4
+    {x:67,y:18,type:'small'},  // L5 upper-right
   ];
   lPos.forEach((p,i)=>{
     const cl=holes[i];
@@ -1382,15 +1373,14 @@ function renderFluteMiniSVG(holes){
   // Right: 7 distinct keys + C pair at end
   // R1(2)=circle, R2(A)=voval, R3(3)=circle, R4(B)=voval, R5(4)=circle, R6(5)=circle, R7(C#)=teardrop, R8(C)=hoval pair
   const rDefs=[
-    {x:82, y:29,type:'circle', hi:5},
-    {x:96, y:29,type:'voval',  hi:6},
-    {x:110,y:29,type:'circle', hi:7},
-    {x:124,y:29,type:'voval',  hi:8},
-    {x:139,y:29,type:'circle', hi:9},
-    {x:153,y:29,type:'circle', hi:10},
-    {x:167,y:29,type:'teardrop',hi:11},
-    {x:181,y:23,type:'hoval',  hi:12},
-    {x:181,y:35,type:'hoval',  hi:12},
+    {x:82, y:29,type:'circle',   hi:5},
+    {x:91, y:38,type:'small',    hi:6},
+    {x:100,y:29,type:'circle',   hi:7},
+    {x:109,y:38,type:'small',    hi:8},
+    {x:118,y:29,type:'circle',   hi:9},
+    {x:136,y:29,type:'teardrop', hi:10},
+    {x:167,y:35,type:'hoval',    hi:11},
+    {x:181,y:23,type:'hoval',    hi:12},
   ];
   rDefs.forEach(p=>{
     const cl=holes[p.hi]||false;
