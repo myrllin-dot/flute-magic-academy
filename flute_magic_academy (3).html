@@ -1243,7 +1243,7 @@ const LH=[
   {cx:210,cy:TUBE_Y,   r:R,  label:'2'},  // L2
   {cx:254,cy:TUBE_Y,   r:R,  label:'3'},  // L3
   {cx:298,cy:TUBE_Y,   r:R,  label:'4'},  // L4
-  {cx:334,cy:TUBE_Y-13,r:7,  label:'5'},  // L5 — upper-right 45° of L4, closer to centre-left (smaller)
+  {cx:330,cy:TUBE_Y-13,r:7,  label:'5'},  // L5 — upper-right 45° of L4, closer to centre-left (smaller)
 ];
 
 // ── Right hand (9 entries) ──
@@ -1259,8 +1259,8 @@ const RH=[
   {cx:RH_BASE_X+93,  cy:TUBE_Y+22, type:'circle',    r:8,         label:'B'},   // R4 — small, below midpoint R3/R5, same y as L1/R2
   {cx:RH_BASE_X+108, cy:TUBE_Y,    type:'circle',    r:R,         label:'4'},   // R5
   {cx:RH_BASE_X+152, cy:TUBE_Y,    type:'teardrop',  r:R,         label:'5'},   // R6 — small, lower-right 45° of R5
-  {cx:RH_BASE_X+174, cy:TUBE_Y+8,  type:'hoval',     rx:5,ry:2,   label:'C#'},  // R7-bottom
-  {cx:RH_BASE_X+174, cy:TUBE_Y-8,  type:'hoval',     rx:5,ry:2,   label:'C'},   // R8-top
+  {cx:RH_BASE_X+174, cy:TUBE_Y+8,  type:'hoval',     rx:8,ry:5,   label:'C#'},  // R7-bottom
+  {cx:RH_BASE_X+174, cy:TUBE_Y-8,  type:'hoval',     rx:8,ry:5,   label:'C'},   // R8-top
 ];
 
 function holeFill(closed){
@@ -1373,14 +1373,14 @@ function renderFluteMiniSVG(holes){
   // Right: 7 distinct keys + C pair at end
   // R1(2)=circle, R2(A)=voval, R3(3)=circle, R4(B)=voval, R5(4)=circle, R6(5)=circle, R7(C#)=teardrop, R8(C)=hoval pair
   const rDefs=[
-    {x:82, y:29,type:'circle',   hi:5},
-    {x:91, y:38,type:'small',    hi:6},
-    {x:100,y:29,type:'circle',   hi:7},
-    {x:109,y:38,type:'small',    hi:8},
-    {x:118,y:29,type:'circle',   hi:9},
-    {x:136,y:29,type:'teardrop', hi:10},
-    {x:167,y:35,type:'hoval',    hi:11},
-    {x:181,y:23,type:'hoval',    hi:12},
+    {x:90, y:29,type:'circle',   hi:5},
+    {x:99, y:38,type:'small',    hi:6},
+    {x:108,y:29,type:'circle',   hi:7},
+    {x:117,y:38,type:'small',    hi:8},
+    {x:126,y:29,type:'circle',   hi:9},
+    {x:144,y:29,type:'teardrop', hi:10},
+    {x:152,y:35,type:'hoval',    hi:11},
+    {x:152,y:23,type:'hoval',    hi:12},
   ];
   rDefs.forEach(p=>{
     const cl=holes[p.hi]||false;
