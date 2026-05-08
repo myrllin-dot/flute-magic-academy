@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎵 長笛魔法學院 | Flute Magic Academy</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+TC:wght@300;400;500;700&display=swap');
+
+:root {
+  --gold:#c9a84c; --gold-light:#e8c97a; --gold-dim:#7a6230;
+  --deep:#0a0814; --deep2:#110d22; --purple:#2d1b5e; --purple2:#4a2d8a;
+  --accent:#8b5cf6; --teal:#0fd4c0; --rose:#f472b6; --white:#f0ead6;
+  --text:#d4c9a8; --border:rgba(201,168,76,0.3);
+  --orange:#f97316; --green:#22c55e;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--deep);color:var(--text);font-family:'Noto Serif TC','Crimson Pro',serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(45,27,94,.55) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(15,212,192,.07) 0%,transparent 50%),radial-gradient(ellipse at 60% 80%,rgba(139,92,246,.1) 0%,transparent 50%);pointer-events:none;z-index:0;}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle var(--d,3s) ease-in-out infinite;animation-delay:var(--delay,0s);opacity:.4;}
+@keyframes twinkle{0%,100%{opacity:.1;transform:scale(1);}50%{opacity:.8;transform:scale(1.3);}}
+
+/* ─── LAYOUT ─── */
+#app{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:16px 14px 160px;}
+
+/* ─── HEADER ─── */
+.header{text-align:center;padding:24px 0 16px;position:relative;}
+.header::after{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin-top:18px;}
+.header h1{font-family:'Cinzel Decorative',cursive;font-size:clamp(1.3rem,4vw,2.1rem);color:var(--gold-light);text-shadow:0 0 30px rgba(201,168,76,.5);letter-spacing:.05em;line-height:1.3;}
+.header p{font-style:italic;color:var(--gold-dim);font-size:.9rem;margin-top:4px;}
+
+/* ─── HUD ─── */
+.hud{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin:12px 0;}
+.hud-item{background:rgba(17,13,34,.8);border:1px solid var(--border);border-radius:12px;padding:8px 18px;text-align:center;min-width:80px;}
+.hud-item .hud-label{display:block;font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gold-dim);}
+.hud-item .hud-val{font-family:'Cinzel Decorative',cursive;font-size:1.3rem;color:var(--gold);}
+
+/* ─── STAGE MAP ─── */
+.stage-map{display:flex;justify-content:center;align-items:center;gap:0;margin:16px 0;flex-wrap:wrap;}
+.stage-node{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.stage-icon{width:52px;height:52px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.4rem;transition:all .3s;background:rgba(17,13,34,.8);}
+.stage-node.unlocked .stage-icon{border-color:var(--gold);box-shadow:0 0 16px rgba(201,168,76,.25);}
+.stage-node.active .stage-icon{border-color:var(--teal);box-shadow:0 0 20px rgba(15,212,192,.4);background:rgba(15,212,192,.1);animation:pulse 2s ease-in-out infinite;}
+.stage-node.done .stage-icon{border-color:var(--green);background:rgba(34,197,94,.15);}
+@keyframes pulse{0%,100%{box-shadow:0 0 20px rgba(15,212,192,.4);}50%{box-shadow:0 0 35px rgba(15,212,192,.7);}}
+.stage-label{font-size:.65rem;color:var(--gold-dim);text-align:center;max-width:60px;}
+.stage-connector{width:30px;height:2px;background:linear-gradient(90deg,var(--border),var(--border));margin-bottom:18px;position:relative;}
+.stage-connector.lit{background:linear-gradient(90deg,var(--teal),var(--gold));}
+@media(max-width:480px){.stage-connector{width:14px;}.stage-icon{width:42px;height:42px;font-size:1.1rem;}}
+
+/* ─── CARD ─── */
+.card{background:rgba(17,13,34,.85);border:1px solid var(--border);border-radius:18px;padding:24px;margin-bottom:20px;backdrop-filter:blur(12px);position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.card h2{font-family:'Cinzel Decorative',cursive;color:var(--gold);font-size:.95rem;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+
+/* ─── PANEL ─── */
+.panel{display:none;}
+.panel.active{display:block;animation:fadeUp .4s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── PIANO ─── */
+.piano-wrap{overflow-x:auto;padding:10px 0 20px;}
+.piano{display:flex;position:relative;height:150px;width:fit-content;margin:0 auto;user-select:none;}
+.key{position:relative;cursor:pointer;border-radius:0 0 8px 8px;transition:filter .1s,transform .1s;touch-action:manipulation;}
+.key.white{width:44px;height:150px;background:linear-gradient(180deg,#f5f0e8 0%,#fff 40%,#f0ebe0 100%);border:1px solid #bbb;border-top:none;z-index:1;box-shadow:2px 4px 8px rgba(0,0,0,.4);}
+.key.white:hover,.key.white.pressed{background:linear-gradient(180deg,var(--gold-light) 0%,#fef3c7 40%,#fde68a 100%);filter:brightness(1.1);transform:scaleY(1.02);transform-origin:top;}
+.key.black{width:26px;height:94px;background:linear-gradient(180deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%);border:1px solid #000;border-top:none;position:absolute;z-index:2;border-radius:0 0 6px 6px;box-shadow:2px 6px 10px rgba(0,0,0,.6);}
+.key.black:hover,.key.black.pressed{background:linear-gradient(180deg,var(--accent) 0%,var(--purple2) 100%);filter:brightness(1.3);transform:scaleY(1.02);transform-origin:top;}
+.key-label{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);font-size:.52rem;color:#888;pointer-events:none;white-space:nowrap;}
+.key.black .key-label{color:#aaa;bottom:3px;font-size:.48rem;}
+.key.highlight-show{background:linear-gradient(180deg,#ffd700,#ffec70) !important;animation:keyGlow .4s ease;}
+.key.highlight-user{background:linear-gradient(180deg,var(--teal),#7fffd4) !important;animation:keyGlow .4s ease;}
+.key.black.highlight-show{background:linear-gradient(180deg,#b8860b,#daa520) !important;}
+.key.black.highlight-user{background:linear-gradient(180deg,var(--teal),#5fa) !important;}
+.key.wrong-flash{background:linear-gradient(180deg,var(--rose),#ff8fa3) !important;animation:keyGlow .2s ease;}
+.key.black.wrong-flash{background:linear-gradient(180deg,var(--rose),#c0365a) !important;}
+@keyframes keyGlow{0%{filter:brightness(2);}100%{filter:brightness(1);}}
+
+/* scale selector */
+.scale-select{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.scale-select label{font-size:.8rem;color:var(--gold-dim);margin-right:4px;}
+select.sel{background:rgba(17,13,34,.9);border:1px solid var(--border);color:var(--gold-light);padding:6px 12px;border-radius:8px;font-family:'Noto Serif TC',serif;font-size:.85rem;cursor:pointer;appearance:none;-webkit-appearance:none;}
+select.sel:focus{outline:none;border-color:var(--gold);}
+
+/* ─── PROGRESS INDICATOR ─── */
+.level-progress{display:flex;gap:6px;justify-content:center;margin:10px 0;flex-wrap:wrap;}
+.lp-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--gold-dim);transition:all .3s;}
+.lp-dot.done{background:rgba(34,197,94,.25);border-color:var(--green);color:var(--green);}
+.lp-dot.current{background:rgba(15,212,192,.2);border-color:var(--teal);color:var(--teal);box-shadow:0 0 10px rgba(15,212,192,.4);}
+
+/* ─── BUTTONS ─── */
+.btn-gold{background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;color:var(--deep);padding:10px 24px;border-radius:25px;cursor:pointer;font-family:'Noto Serif TC',serif;font-size:.88rem;font-weight:700;transition:all .3s;box-shadow:0 4px 15px rgba(201,168,76,.3);}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,168,76,.5);}
+.btn-purple{background:linear-gradient(135deg,var(--purple2),var(--accent));border:none;color:#fff;padding:10px 24px;border-radius:25px;cursor:pointer;font-family:'Noto Serif TC',serif;font-size:.88rem;transition:all .3s;box-shadow:0 4px 20px rgba(139,92,246,.4);display:inline-flex;align-items:center;gap:8px;}
+.btn-purple:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(139,92,246,.6);}
+.btn-teal{background:linear-gradient(135deg,#0a5c56,var(--teal));border:none;color:#fff;padding:10px 24px;border-radius:25px;cursor:pointer;font-family:'Noto Serif TC',serif;font-size:.88rem;transition:all .3s;}
+.btn-teal:hover{transform:translateY(-2px);}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px;}
+
+/* ─── NOTE DISPLAY ─── */
+.note-display{text-align:center;padding:14px;background:rgba(0,0,0,.3);border-radius:12px;margin:10px 0;}
+.big-note{font-family:'Cinzel Decorative',cursive;font-size:2.2rem;color:var(--gold-light);text-shadow:0 0 20px var(--gold);min-height:54px;display:flex;align-items:center;justify-content:center;}
+.note-sub{font-size:.85rem;color:var(--teal);margin-top:4px;}
+
+/* ─── EAR TRAINING ─── */
+.play-ring{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--purple2),var(--accent));border:none;color:#fff;font-size:1.8rem;cursor:pointer;margin:10px auto;display:block;transition:all .3s;box-shadow:0 0 25px rgba(139,92,246,.5);}
+.play-ring:hover{transform:scale(1.08);box-shadow:0 0 40px rgba(139,92,246,.7);}
+.ear-choices{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
+.ear-btn{background:rgba(201,168,76,.07);border:1px solid var(--border);color:var(--text);padding:10px 6px;border-radius:10px;cursor:pointer;font-family:'Noto Serif TC',serif;font-size:.85rem;transition:all .25s;text-align:center;}
+.ear-btn:hover:not(:disabled){background:rgba(201,168,76,.18);border-color:var(--gold);color:var(--gold-light);}
+.ear-btn.correct{background:rgba(15,212,192,.2);border-color:var(--teal);color:var(--teal);}
+.ear-btn.wrong{background:rgba(244,114,182,.18);border-color:var(--rose);color:var(--rose);}
+@media(max-width:480px){.ear-choices{grid-template-columns:repeat(2,1fr);}}
+
+/* ─── THEORY ─── */
+.q-card{background:rgba(0,0,0,.35);border-radius:14px;padding:20px;margin:12px 0;}
+.q-text{font-size:1rem;color:var(--white);margin-bottom:14px;line-height:1.65;}
+.q-opts{display:flex;flex-direction:column;gap:8px;}
+.q-opt{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:11px 16px;border-radius:9px;cursor:pointer;text-align:left;font-family:'Noto Serif TC',serif;font-size:.88rem;transition:all .2s;display:flex;align-items:center;gap:10px;}
+.q-opt:hover:not(:disabled){background:rgba(139,92,246,.15);border-color:var(--accent);color:var(--white);}
+.q-opt.correct{background:rgba(15,212,192,.15);border-color:var(--teal);color:var(--teal);}
+.q-opt.wrong{background:rgba(244,114,182,.15);border-color:var(--rose);color:var(--rose);}
+.opt-letter{width:26px;height:26px;border-radius:50%;background:rgba(201,168,76,.13);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--gold);flex-shrink:0;}
+.explanation{background:rgba(139,92,246,.1);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin-top:12px;font-size:.87rem;line-height:1.6;color:var(--text);animation:fadeUp .3s;}
+
+/* ─── PROGRESS BAR ─── */
+.prog-wrap{background:rgba(255,255,255,.06);border-radius:10px;height:6px;overflow:hidden;margin:8px 0;}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:10px;transition:width .4s ease;}
+
+/* ─── FLUTE FINGERING ─── */
+.flute-note-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:7px;margin:12px 0;}
+.fn-btn{background:rgba(201,168,76,.07);border:1px solid var(--border);color:var(--text);padding:8px 4px;border-radius:10px;cursor:pointer;font-family:'Noto Serif TC',serif;font-size:.8rem;text-align:center;transition:all .2s;}
+.fn-btn:hover{border-color:var(--gold);color:var(--gold-light);}
+.fn-btn.selected{background:rgba(201,168,76,.2);border-color:var(--gold);color:var(--gold-light);box-shadow:0 0 10px rgba(201,168,76,.3);}
+
+/* ─── FLUTE FINGERING SVG ─── */
+.flute-svg-wrap{background:rgba(0,0,0,.3);border-radius:14px;padding:18px 12px 14px;margin:14px 0;overflow-x:auto;}
+.flute-svg-wrap svg{display:block;margin:0 auto;max-width:100%;}
+
+/* flute quiz choices */
+.flute-choices{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px;}
+.flute-choice{background:rgba(17,13,34,.8);border:1px solid var(--border);border-radius:12px;padding:12px 8px;cursor:pointer;transition:all .25s;text-align:center;}
+.flute-choice:hover:not(:disabled){border-color:var(--gold);background:rgba(201,168,76,.1);}
+.flute-choice.correct{border-color:var(--teal);background:rgba(15,212,192,.15);}
+.flute-choice.wrong{border-color:var(--rose);background:rgba(244,114,182,.15);}
+.flute-choice .fc-code{font-family:'Cinzel Decorative',cursive;font-size:.9rem;color:var(--gold);margin-bottom:6px;word-break:break-all;}
+.choice-svg-wrap{display:flex;justify-content:center;margin:4px 0;}
+.flute-choice .fc-note{font-size:.68rem;color:var(--gold-dim);margin-top:4px;}
+
+/* ─── RESULT POPUP ─── */
+.result-msg{font-size:1rem;padding:10px 14px;border-radius:10px;text-align:center;animation:pop .3s ease;margin-top:10px;}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ─── FLOATING NOTE ─── */
+.floating-note{position:fixed;pointer-events:none;font-size:1.1rem;animation:floatUp 2s ease forwards;z-index:200;}
+@keyframes floatUp{0%{transform:translateY(0) rotate(-10deg);opacity:1;}100%{transform:translateY(-130px) rotate(20deg);opacity:0;}}
+
+/* ─── TOAST TRAY ─── */
+.toast-tray{position:fixed;bottom:0;left:0;right:0;z-index:500;padding:12px 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:linear-gradient(0deg,rgba(10,8,20,.98),rgba(10,8,20,.7) 80%,transparent);pointer-events:none;}
+.toast-slot{background:rgba(17,13,34,.9);border:1px solid var(--border);border-radius:14px;padding:12px 14px;min-height:68px;display:flex;flex-direction:column;justify-content:center;transition:all .5s;opacity:0;transform:translateY(20px);pointer-events:auto;}
+.toast-slot.visible{opacity:1;transform:translateY(0);}
+.toast-tag{font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px;}
+.toast-title{font-size:.8rem;color:var(--white);line-height:1.4;font-weight:500;}
+.toast-cta{font-size:.7rem;margin-top:5px;color:var(--gold);cursor:pointer;display:inline-block;}
+.toast-cta:hover{text-decoration:underline;}
+@media(max-width:600px){.toast-tray{grid-template-columns:1fr;}.toast-slot{min-height:auto;}}
+
+/* ─── PROMO SECTION ─── */
+.promo-section{margin-top:20px;border-top:1px solid var(--border);padding-top:18px;}
+.promo-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.14em;color:var(--gold-dim);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.promo-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.promo-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;}
+.promo-card{background:linear-gradient(135deg,rgba(45,27,94,.55),rgba(17,13,34,.85));border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .3s;text-decoration:none;display:block;position:relative;overflow:hidden;}
+.promo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--teal));transform:scaleX(0);transition:transform .3s;}
+.promo-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.4);}
+.promo-card:hover::before{transform:scaleX(1);}
+.promo-tag{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
+.promo-title{font-size:.9rem;color:var(--white);font-weight:500;line-height:1.4;margin-bottom:5px;}
+.promo-desc{font-size:.78rem;color:var(--text);line-height:1.5;opacity:.85;}
+.promo-cta{display:inline-block;margin-top:8px;font-size:.73rem;border:1px solid var(--border);padding:3px 10px;border-radius:20px;transition:all .2s;}
+.promo-card:hover .promo-cta{background:rgba(201,168,76,.15);}
+
+/* ─── STATUS BAR ─── */
+.status-bar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:rgba(0,0,0,.35);border-radius:10px;margin-bottom:12px;font-size:.85rem;flex-wrap:wrap;}
+.status-bar span{color:var(--gold-dim);}
+.status-bar b{color:var(--gold-light);}
+
+/* ─── VICTORY OVERLAY ─── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:800;display:none;align-items:center;justify-content:center;padding:20px;}
+.overlay.show{display:flex;animation:fadeUp .4s ease;}
+.victory-box{background:linear-gradient(135deg,var(--deep2),var(--purple));border:2px solid var(--gold);border-radius:24px;padding:36px;max-width:520px;width:100%;text-align:center;position:relative;overflow:hidden;}
+.victory-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.12),transparent 70%);pointer-events:none;}
+.victory-box h2{font-family:'Cinzel Decorative',cursive;color:var(--gold-light);font-size:1.4rem;margin-bottom:12px;}
+.victory-box p{color:var(--text);line-height:1.7;margin-bottom:16px;}
+.cta-links{display:flex;flex-direction:column;gap:10px;margin-top:18px;}
+.cta-link{display:block;padding:12px 20px;border-radius:14px;text-decoration:none;font-family:'Noto Serif TC',serif;font-size:.9rem;transition:all .3s;border:1px solid;}
+.cta-link:hover{transform:translateY(-2px);}
+
+/* ─── MISC ─── */
+@media(max-width:500px){.card{padding:16px;}.hud{gap:10px;}.hud-item{padding:6px 10px;min-width:60px;}.hud-val{font-size:1rem;}}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div id="app">
+
+<!-- ══════ HEADER ══════ -->
+<div class="header">
+  <h1>🎵 長笛魔法學院</h1>
+  <p>Flute Magic Academy — myrflute.com × @flutegamer</p>
+</div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hud-item"><span class="hud-label">⭐ 魔法點數</span><span class="hud-val" id="hud-score">0</span></div>
+  <div class="hud-item"><span class="hud-label">🔥 連勝</span><span class="hud-val" id="hud-streak">0</span></div>
+  <div class="hud-item"><span class="hud-label">🎓 等級</span><span class="hud-val" id="hud-level" style="font-size:.85rem;">學徒</span></div>
+  <div class="hud-item"><span class="hud-label">🗺 關卡</span><span class="hud-val" id="hud-stage">1/4</span></div>
+</div>
+
+<!-- STAGE MAP -->
+<div class="stage-map" id="stageMap">
+  <div class="stage-node active" id="sn-1" onclick="jumpStage(1)">
+    <div class="stage-icon">🎹</div>
+    <div class="stage-label">第一關<br>鋼琴</div>
+  </div>
+  <div class="stage-connector" id="sc-1"></div>
+  <div class="stage-node locked" id="sn-2">
+    <div class="stage-icon">👂</div>
+    <div class="stage-label">第二關<br>聽音</div>
+  </div>
+  <div class="stage-connector" id="sc-2"></div>
+  <div class="stage-node locked" id="sn-3">
+    <div class="stage-icon">📚</div>
+    <div class="stage-label">第三關<br>樂理</div>
+  </div>
+  <div class="stage-connector" id="sc-3"></div>
+  <div class="stage-node locked" id="sn-4">
+    <div class="stage-icon">🎵</div>
+    <div class="stage-label">第四關<br>指法</div>
+  </div>
+</div>
+
+<!-- ══════ STAGE 1 — PIANO ══════ -->
+<div id="stage-1" class="panel active">
+  <div class="card">
+    <h2>🎹 第一關 — 互動鋼琴鍵盤</h2>
+    <p style="font-size:.83rem;color:var(--gold-dim);margin-bottom:12px;">
+      選擇調性 → 聽示範 → 跟著彈一遍！答對即過關 🏆
+    </p>
+    <div class="scale-select">
+      <label>選擇調：</label>
+      <select class="sel" id="scaleSelect" onchange="onScaleChange()"></select>
+      <label style="margin-left:8px;">類型：</label>
+      <select class="sel" id="scaleType" onchange="onScaleChange()">
+        <option value="major">大調</option>
+        <option value="minor">自然小調</option>
+      </select>
+    </div>
+    <div class="note-display">
+      <div class="big-note" id="pianoNote">—</div>
+      <div class="note-sub" id="pianoNoteSub">選擇調性後點「示範音階」</div>
+    </div>
+    <div class="piano-wrap"><div class="piano" id="piano"></div></div>
+
+    <div id="s1-status" class="status-bar" style="display:none;"></div>
+    <div id="s1-feedback" class="result-msg" style="display:none;"></div>
+
+    <div class="btn-row">
+      <button class="btn-purple" id="demoBtn" onclick="demoScale()">▶ 示範音階</button>
+      <button class="btn-teal" id="practiceBtn" onclick="startPractice()" style="display:none;">🎮 開始跟彈</button>
+      <button class="btn-gold" id="retryBtn" onclick="retryPractice()" style="display:none;">↺ 重試</button>
+    </div>
+  </div>
+  <div id="s1-promo"></div>
+</div>
+
+<!-- ══════ STAGE 2 — EAR TRAINING ══════ -->
+<div id="stage-2" class="panel">
+  <div class="card">
+    <h2>👂 第二關 — 聽音訓練</h2>
+    <p style="font-size:.83rem;color:var(--gold-dim);margin-bottom:12px;">
+      連答對 <b style="color:var(--teal)">8題</b>（每5題至少3種不同音）即過關！答錯重答，不扣分。
+    </p>
+    <div class="level-progress" id="earProgress"></div>
+    <div class="note-display" style="padding:20px;">
+      <button class="play-ring" id="earPlayBtn" onclick="playEarNote()" title="播放音符">▶</button>
+      <div class="note-sub" id="earHint">點擊播放，然後選擇你聽到的音！</div>
+    </div>
+    <div class="ear-choices" id="earChoices"></div>
+    <div id="ear-feedback" class="result-msg" style="display:none;"></div>
+    <div class="btn-row">
+      <button class="btn-gold" id="earNextBtn" onclick="nextEarQ()" style="display:none;">下一題 →</button>
+    </div>
+  </div>
+  <div id="s2-promo"></div>
+</div>
+
+<!-- ══════ STAGE 3 — THEORY ══════ -->
+<div id="stage-3" class="panel">
+  <div class="card">
+    <h2>📚 第三關 — 樂理測驗</h2>
+    <p style="font-size:.83rem;color:var(--gold-dim);margin-bottom:12px;">
+      答對 <b style="color:var(--teal)">8題</b>即過關！每次從題庫隨機抽題。
+    </p>
+    <div class="prog-wrap"><div class="prog-bar" id="theoryProg" style="width:0%"></div></div>
+    <div class="level-progress" id="theoryProgress"></div>
+    <div id="theoryContent"></div>
+    <div class="btn-row">
+      <button class="btn-gold" id="theoryNextBtn" onclick="nextTheoryQ()">開始測驗 →</button>
+    </div>
+  </div>
+  <div id="s3-promo"></div>
+</div>
+
+<!-- ══════ STAGE 4 — FLUTE FINGERING ══════ -->
+<div id="stage-4" class="panel">
+  <div class="card">
+    <h2>🎵 第四關 — 長笛指法大師</h2>
+    <p style="font-size:.83rem;color:var(--gold-dim);margin-bottom:12px;">
+      根據指法圖，選出正確的<b style="color:var(--gold)">數字指法代碼</b>！答對 <b style="color:var(--teal)">8題</b>成為長笛大師！
+    </p>
+    <div class="level-progress" id="fluteProgress"></div>
+
+    <div id="fluteQuizArea">
+      <div class="note-display" style="margin-bottom:8px;">
+        <div class="big-note" id="fluteQuizNote" style="font-size:1.6rem;">—</div>
+        <div class="note-sub" id="fluteQuizHint">正在載入...</div>
+      </div>
+      <!-- SVG flute diagram rendered by JS -->
+      <div class="flute-svg-wrap" id="fluteSvgWrap">
+        <svg id="fluteDiagramSvg" width="680" height="130" viewBox="0 0 680 130"></svg>
+      </div>
+      <div class="flute-choices" id="fluteChoices"></div>
+      <div id="flute-feedback" class="result-msg" style="display:none;"></div>
+      <div class="btn-row">
+        <button class="btn-purple" onclick="playFluteQuizNote()">▶ 聽聲音</button>
+        <button class="btn-gold" id="fluteNextBtn" onclick="nextFluteQ()" style="display:none;">下一題 →</button>
+      </div>
+    </div>
+  </div>
+  <div id="s4-promo"></div>
+</div>
+
+</div><!-- /#app -->
+
+<!-- ══════ TOAST TRAY (3 slots) ══════ -->
+<div class="toast-tray" id="toastTray">
+  <div class="toast-slot" id="toast-0"></div>
+  <div class="toast-slot" id="toast-1"></div>
+  <div class="toast-slot" id="toast-2"></div>
+</div>
+
+<!-- ══════ VICTORY OVERLAY ══════ -->
+<div class="overlay" id="victoryOverlay">
+  <div class="victory-box">
+    <div style="font-size:3rem;margin-bottom:12px;" id="victoryEmoji">🏆</div>
+    <h2 id="victoryTitle">恭喜過關！</h2>
+    <p id="victoryMsg"></p>
+    <div class="cta-links" id="victoryCTA"></div>
+    <button class="btn-gold" style="margin-top:16px;" onclick="closeVictory()">繼續探索 →</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ════════════════════════════════════════════════
+//  AUDIO
+// ════════════════════════════════════════════════
+let audioCtx=null;
+function getAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+
+function playFreq(freq,dur=0.7,vol=0.22,type='sine'){
+  const ctx=getAudio();
+  const o=ctx.createOscillator(),g=ctx.createGain();
+  o.connect(g);g.connect(ctx.destination);
+  o.type=type;o.frequency.value=freq;
+  const t=ctx.currentTime;
+  g.gain.setValueAtTime(vol,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+  o.start(t);o.stop(t+dur+.05);
+}
+
+function playFluteSound(freq,dur=0.9,vol=0.2){
+  const ctx=getAudio();
+  const o1=ctx.createOscillator(),o2=ctx.createOscillator();
+  const g=ctx.createGain();
+  o1.connect(g);o2.connect(g);g.connect(ctx.destination);
+  o1.type='sine';o1.frequency.value=freq;
+  o2.type='sine';o2.frequency.value=freq*2.005;
+  const t=ctx.currentTime;
+  g.gain.setValueAtTime(.001,t);
+  g.gain.linearRampToValueAtTime(vol,t+.06);
+  g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o1.start(t);o1.stop(t+dur+.1);
+  o2.start(t);o2.stop(t+dur+.1);
+}
+
+// ════════════════════════════════════════════════
+//  NOTE TABLES
+// ════════════════════════════════════════════════
+const FREQ={
+  'G2':98.00,'Ab2':103.83,'A2':110.00,'Bb2':116.54,'B2':123.47,
+  'C3':130.81,'D3':146.83,'E3':164.81,'F3':174.61,'G3':196.00,'A3':220.00,'B3':246.94,
+  'Db3':138.59,'Eb3':155.56,'Gb3':185.00,'Ab3':207.65,'Bb3':233.08,
+  'C4':261.63,'D4':293.66,'E4':329.63,'F4':349.23,'G4':392.00,'A4':440.00,'B4':493.88,
+  'Db4':277.18,'Eb4':311.13,'Gb4':369.99,'Ab4':415.30,'Bb4':466.16,
+  'C5':523.25,'D5':587.33,'E5':659.25,'F5':698.46,'G5':783.99,'A5':880.00,'B5':987.77,
+  'Db5':554.37,'Eb5':622.25,'Gb5':739.99,'Ab5':830.61,'Bb5':932.33
+};
+
+// 24 major/minor scales: root notes
+const ROOTS=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const MAJOR_INTERVALS=[0,2,4,5,7,9,11,12];
+const MINOR_INTERVALS=[0,2,3,5,7,8,10,12];
+const ALL_SEMITONES=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+// Build scale starting at given octave for the root note.
+// For roots G/Ab/A/Bb/B we start at octave 2 so the scale fits G2–G4.
+function buildScale(root,type,_unused){
+  // Choose start octave so scale lands within G2–G4 piano range
+  // G,Ab,A,Bb,B start at octave 2; C–Gb start at octave 3
+  const highRoots=['G','Ab','A','Bb','B'];
+  const octave = highRoots.includes(root) ? 2 : 3;
+  const rootIdx=ALL_SEMITONES.indexOf(root);
+  const intervals=type==='major'?MAJOR_INTERVALS:MINOR_INTERVALS;
+  return intervals.map(i=>{
+    const total=rootIdx+i;
+    const noteName=ALL_SEMITONES[total%12];
+    const oct=octave+Math.floor((rootIdx+i)/12);
+    return {name:noteName,octave:oct,key:`${noteName}${oct}`};
+  });
+}
+
+// Chinese note names
+const ZH={C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si',
+  Db:'Do#',Eb:'Re#',Gb:'Fa#',Ab:'Sol#',Bb:'La#'};
+
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+let score=0,streak=0,currentStage=1;
+const stageUnlocked=[true,false,false,false];
+
+const LEVELS=[
+  [0,'初學前'],
+  [30,'入門'],
+  [94,'初學者'],
+  [190,'學徒'],
+  [300,'大師🏆']
+];
+
+function updateHUD(){
+  document.getElementById('hud-score').textContent=score;
+  document.getElementById('hud-streak').textContent=streak;
+  const lv=LEVELS.slice().reverse().find(([p])=>score>=p);
+  document.getElementById('hud-level').textContent=lv[1];
+  document.getElementById('hud-stage').textContent=currentStage+'/4';
+}
+
+function addScore(pts){
+  score+=pts;streak++;updateHUD();
+  spawnNote(pts);
+  if(streak===3)queueToast({tag:'🔥',title:'3連勝！你的耳朵很厲害！',cta:'更多練習 →',url:'#'},0);
+  if(score>=300 && score-pts<300)queueToast({tag:'🌟',title:'解鎖演奏者等級！去看看課程吧',cta:'長笛課程 →',url:'#'},0);
+}
+function resetStreak(){streak=0;updateHUD();}
+
+function spawnNote(pts){
+  const el=document.createElement('div');
+  el.className='floating-note';
+  el.textContent=['♩','♪','♫','♬'][Math.floor(Math.random()*4)]+'+'+pts;
+  el.style.left=(15+Math.random()*65)+'%';
+  el.style.bottom='120px';
+  el.style.color='#c9a84c';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),2100);
+}
+
+function unlockStage(n){
+  stageUnlocked[n-1]=true;
+  const node=document.getElementById('sn-'+n);
+  if(node){node.classList.remove('locked');node.classList.add('unlocked');node.onclick=()=>jumpStage(n);}
+  const sc=document.getElementById('sc-'+(n-1));
+  if(sc)sc.classList.add('lit');
+}
+
+function jumpStage(n){
+  if(!stageUnlocked[n-1])return;
+  currentStage=n;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('stage-'+n).classList.add('active');
+  document.querySelectorAll('.stage-node').forEach(nd=>nd.classList.remove('active'));
+  const node=document.getElementById('sn-'+n);
+  if(node)node.classList.add('active');
+  updateHUD();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ════════════════════════════════════════════════
+//  STARS
+// ════════════════════════════════════════════════
+(()=>{
+  const s=document.getElementById('stars');
+  for(let i=0;i<70;i++){
+    const el=document.createElement('div');
+    el.className='star';
+    const sz=Math.random()*2+.5;
+    el.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*5}s`;
+    s.appendChild(el);
+  }
+})();
+
+// ════════════════════════════════════════════════
+//  TOAST TRAY
+// ════════════════════════════════════════════════
+const PROMOS=[
+  {tag:'🎶 部落格',title:'長笛吹奏必知的呼吸技巧',desc:'掌握橫膈膜呼吸',cta:'閱讀文章 →',url:'#',color:'#8b5cf6'},
+  {tag:'🛍 商品',title:'精選長笛保養組合',desc:'台灣在地推薦',cta:'查看商品 →',url:'#',color:'#c9a84c'},
+  {tag:'🎓 課程',title:'長笛入門線上課程',desc:'12週完整計畫',cta:'了解課程 →',url:'#',color:'#0fd4c0'},
+  {tag:'💬 LINE',title:'加入官方LINE社群',desc:'每週免費資源',cta:'立即加入 →',url:'#',color:'#f472b6'},
+  {tag:'📮 電子報',title:'長笛玩家電子報',desc:'每月精選樂曲',cta:'免費訂閱 →',url:'#',color:'#34d399'},
+  {tag:'🎵 部落格',title:'如何選購第一支長笛',desc:'新手完整指南',cta:'閱讀指南 →',url:'#',color:'#fb923c'},
+  {tag:'🎓 進階',title:'長笛技巧工作坊',desc:'音色雕塑實戰',cta:'報名工作坊 →',url:'#',color:'#60a5fa'},
+  {tag:'🛍 樂譜',title:'長笛樂譜精選集',desc:'古典到流行',cta:'選購樂譜 →',url:'#',color:'#a78bfa'},
+];
+let toastQueue=[];
+let toastData=[null,null,null];
+const TOAST_REFRESH_INTERVAL=12000;
+
+function queueToast(item,slot){
+  toastData[slot]=item;
+  renderToastSlot(slot);
+}
+
+function renderToastSlot(i){
+  const slot=document.getElementById('toast-'+i);
+  const d=toastData[i];
+  if(!d){slot.classList.remove('visible');return;}
+  slot.innerHTML=`<div class="toast-tag" style="color:${d.color||'var(--accent)'}">${d.tag}</div>
+    <div class="toast-title">${d.title}</div>
+    ${d.cta?`<span class="toast-cta" onclick="toastCTA('${d.url}','${d.title}')">${d.cta}</span>`:''}`;
+  slot.classList.add('visible');
+}
+
+function toastCTA(url,title){
+  alert(`🔗 正在前往：${title}\n（請替換為您的真實 URL）`);
+}
+
+function rotatePomros(){
+  const shuffled=[...PROMOS].sort(()=>Math.random()-.5);
+  for(let i=0;i<3;i++) queueToast({...shuffled[i],color:shuffled[i].color},i);
+}
+
+rotatePomros();
+setInterval(rotatePomros,TOAST_REFRESH_INTERVAL);
+
+function renderPromos(containerId){
+  const el=document.getElementById(containerId);
+  if(!el||el.innerHTML)return;
+  const picked=[...PROMOS].sort(()=>Math.random()-.5).slice(0,3);
+  el.innerHTML=`<div class="promo-section">
+    <div class="promo-label">✨ 長笛玩家工作室推薦</div>
+    <div class="promo-cards">${picked.map(p=>`
+      <a href="${p.url}" class="promo-card" onclick="event.preventDefault();toastCTA('${p.url}','${p.title}')">
+        <div class="promo-tag" style="color:${p.color}">${p.tag}</div>
+        <div class="promo-title">${p.title}</div>
+        <div class="promo-desc">${p.desc}</div>
+        <span class="promo-cta" style="color:${p.color};border-color:${p.color}40">${p.cta}</span>
+      </a>`).join('')}
+    </div></div>`;
+}
+renderPromos('s1-promo');
+
+// ════════════════════════════════════════════════
+//  VICTORY / COMPLETE
+// ════════════════════════════════════════════════
+function showVictory({emoji,title,msg,ctas,callback}){
+  const ov=document.getElementById('victoryOverlay');
+  document.getElementById('victoryEmoji').textContent=emoji||'🎉';
+  document.getElementById('victoryTitle').textContent=title;
+  document.getElementById('victoryMsg').textContent=msg;
+  const ctaEl=document.getElementById('victoryCTA');
+  ctaEl.innerHTML=ctas.map(c=>`
+    <a href="${c.url||'#'}" class="cta-link" style="color:${c.color};border-color:${c.color}40;background:${c.color}14"
+       onclick="event.preventDefault();toastCTA('${c.url||'#'}','${c.label}')">
+      ${c.icon} ${c.label}
+    </a>`).join('');
+  ov.classList.add('show');
+  ov._cb=callback;
+}
+function closeVictory(){
+  const ov=document.getElementById('victoryOverlay');
+  ov.classList.remove('show');
+  if(ov._cb)ov._cb();
+  ov._cb=null;
+}
+
+const STAGE_CTAS=[
+  {icon:'🎓',label:'長笛入門線上課程',url:'#',color:'#0fd4c0'},
+  {icon:'💬',label:'加入官方LINE社群',url:'#',color:'#f472b6'},
+  {icon:'🎶',label:'閱讀長笛部落格',url:'#',color:'#8b5cf6'},
+  {icon:'📮',label:'訂閱長笛電子報',url:'#',color:'#34d399'},
+  {icon:'🛍',label:'瀏覽長笛商品',url:'#',color:'#c9a84c'},
+];
+
+// ════════════════════════════════════════════════
+//  STAGE 1 — PIANO  (G2–G4 chromatic)
+// ════════════════════════════════════════════════
+// Chromatic: G2 Ab2 A2 Bb2 B2 C3 Db3 D3 Eb3 E3 F3 Gb3 G3 Ab3 A3 Bb3 B3 C4 Db4 D4 Eb4 E4 F4 Gb4 G4
+// Keyboard:   a  w   s  e   d  f  t   g  y   h  j  i   k  o   l  p   ;  '  [   ]  \  8  9  0  -   =
+// F3=j, Gb3=i (swapped from original), Db4=[, D4=], Eb4=\
+const PIANO_NOTES=[
+  {note:'G2', type:'white', kb:'a'},
+  {note:'Ab2',type:'black', kb:'w'},
+  {note:'A2', type:'white', kb:'s'},
+  {note:'Bb2',type:'black', kb:'e'},
+  {note:'B2', type:'white', kb:'d'},
+  {note:'C3', type:'white', kb:'f'},
+  {note:'Db3',type:'black', kb:'t'},
+  {note:'D3', type:'white', kb:'g'},
+  {note:'Eb3',type:'black', kb:'y'},
+  {note:'E3', type:'white', kb:'h'},
+  {note:'F3', type:'white', kb:'j'},
+  {note:'Gb3',type:'black', kb:'i'},
+  {note:'G3', type:'white', kb:'k'},
+  {note:'Ab3',type:'black', kb:'o'},
+  {note:'A3', type:'white', kb:'l'},
+  {note:'Bb3',type:'black', kb:'p'},
+  {note:'B3', type:'white', kb:';'},
+  {note:'C4', type:'white', kb:"'"},
+  {note:'Db4',type:'black', kb:'['},
+  {note:'D4', type:'white', kb:']'},
+  {note:'Eb4',type:'black', kb:'\\'},
+  {note:'E4', type:'white', kb:'8'},
+  {note:'F4', type:'white', kb:'9'},
+  {note:'Gb4',type:'black', kb:'0'},
+  {note:'G4', type:'white', kb:'-'},
+];
+
+function buildPiano(){
+  const piano=document.getElementById('piano');
+  let whiteCount=0;
+  PIANO_NOTES.forEach(k=>{
+    const el=document.createElement('div');
+    el.className='key '+k.type;
+    el.dataset.note=k.note;
+    const lbl=document.createElement('span');
+    lbl.className='key-label';
+    // Show both note name and keyboard key
+    lbl.innerHTML=k.note.replace(/(\D+)(\d)/,'$1')+`<br>${k.kb.toUpperCase()}`;
+    el.appendChild(lbl);
+    if(k.type==='black'){
+      el.style.left=(whiteCount*44-15)+'px';
+      el.style.position='absolute';
+    }else{
+      whiteCount++;
+    }
+    el.addEventListener('mousedown',()=>handleKeyPress(k.note,el));
+    el.addEventListener('touchstart',e=>{e.preventDefault();handleKeyPress(k.note,el);},{passive:false});
+    piano.appendChild(el);
+  });
+  piano.style.width=(whiteCount*44)+'px';
+}
+
+// Keyboard listener
+window.addEventListener('keydown',e=>{
+  if(document.getElementById('stage-1').classList.contains('active')){
+    const k=PIANO_NOTES.find(x=>x.kb===e.key.toLowerCase());
+    if(k){const el=document.querySelector(`[data-note="${k.note}"]`);if(el)handleKeyPress(k.note,el);}
+  }
+});
+
+// Scale selector
+function populateScaleSelect(){
+  const sel=document.getElementById('scaleSelect');
+  sel.innerHTML='';
+  const type=document.getElementById('scaleType').value;
+  ROOTS.forEach(r=>{
+    const opt=document.createElement('option');
+    opt.value=r;
+    opt.textContent=`${r} ${type==='major'?'大調':'小調'} (${ZH[r]||r})`;
+    sel.appendChild(opt);
+  });
+}
+populateScaleSelect();
+function onScaleChange(){populateScaleSelect();resetPractice();}
+
+// ── 3-round quiz state ──
+let s1RoundsNeeded=3;
+let s1RoundsDone=0;
+let s1UsedScales=[];
+let s1MajorDone=false, s1MinorDone=false; // track coverage
+let currentScale=[];
+let practiceMode=false;
+let practiceIdx=0;
+let practiceErrors=0;
+let demoPlaying=false;
+
+// Pick a random scale ensuring 3 rounds always include ≥1 major and ≥1 minor
+function pickRandomScale(){
+  const types=['major','minor'];
+  let root,type,key;
+  let attempts=0;
+  do{
+    // On round 2 (index 1), force missing type if still absent
+    const round=s1RoundsDone;
+    if(round===1 && !s1MajorDone) type='major';
+    else if(round===1 && !s1MinorDone) type='minor';
+    else type=types[Math.floor(Math.random()*2)];
+    root=ROOTS[Math.floor(Math.random()*ROOTS.length)];
+    key=root+'_'+type;
+    attempts++;
+  }while(s1UsedScales.includes(key)&&attempts<60);
+  s1UsedScales.push(key);
+  return {root,type};
+}
+
+function loadNewRound(){
+  const {root,type}=pickRandomScale();
+  document.getElementById('scaleType').value=type;
+  populateScaleSelect();
+  document.getElementById('scaleSelect').value=root;
+  currentScale=buildScale(root,type);
+  updateS1RoundHUD();
+  resetPractice();
+}
+
+function updateS1RoundHUD(){
+  const sb=document.getElementById('s1-status');
+  sb.style.display='flex';
+  const root=document.getElementById('scaleSelect').value;
+  const type=document.getElementById('scaleType').value;
+  sb.innerHTML=`<span>🎯 第 ${s1RoundsDone+1}/${s1RoundsNeeded} 題 &nbsp;|&nbsp; <b style="color:var(--gold-light)">${root} ${type==='major'?'大調':'小調'}</b> — 先聽示範再跟彈！</span>`;
+}
+
+function demoScale(){
+  if(demoPlaying)return;
+  demoPlaying=true;
+  currentScale=buildScale(
+    document.getElementById('scaleSelect').value,
+    document.getElementById('scaleType').value
+  );
+  document.getElementById('practiceBtn').style.display='none';
+  document.getElementById('retryBtn').style.display='none';
+  document.getElementById('s1-feedback').style.display='none';
+  clearAllHighlights();
+  currentScale.forEach((n,i)=>{
+    setTimeout(()=>{
+      const freq=FREQ[n.key];
+      if(freq){
+        playFluteSound(freq,.45);
+        const el=document.querySelector(`[data-note="${n.key}"]`);
+        if(el){el.classList.add('highlight-show');setTimeout(()=>el.classList.remove('highlight-show'),360);}
+        document.getElementById('pianoNote').textContent=ZH[n.name]||n.name;
+        document.getElementById('pianoNoteSub').textContent=n.key;
+      }
+      if(i===currentScale.length-1){
+        demoPlaying=false;
+        document.getElementById('practiceBtn').style.display='inline-flex';
+      }
+    },i*400);
+  });
+}
+
+function startPractice(){
+  practiceMode=true;
+  practiceIdx=0;
+  practiceErrors=0;
+  document.getElementById('practiceBtn').style.display='none';
+  document.getElementById('retryBtn').style.display='none';
+  const fb=document.getElementById('s1-feedback');
+  fb.style.display='block';
+  fb.style.color='var(--teal)';
+  fb.textContent=`🎮 跟著彈！第 1 個音：${ZH[currentScale[0].name]} (${currentScale[0].key}) — 鍵盤：${PIANO_NOTES.find(p=>p.note===currentScale[0].key)?.kb?.toUpperCase()||''}`;
+}
+
+function showS1Status(){
+  const sb=document.getElementById('s1-status');
+  sb.style.display='flex';
+  const root=document.getElementById('scaleSelect').value;
+  const type=document.getElementById('scaleType').value;
+  const done=currentScale.slice(0,practiceIdx).map(n=>`<span style="color:var(--teal);font-size:.75rem">✓</span>`).join('');
+  const remaining=currentScale.length-practiceIdx;
+  const next=practiceIdx<currentScale.length
+    ?`<b style="color:var(--gold-light)"> → ${ZH[currentScale[practiceIdx].name]} (${currentScale[practiceIdx].key})</b>`:'' ;
+  sb.innerHTML=`<span>🎯 第${s1RoundsDone+1}/${s1RoundsNeeded}題 <b>${root} ${type==='major'?'大調':'小調'}</b> ${done}${next} <span style="color:var(--gold-dim)">(剩${remaining}音)</span></span>`;
+}
+
+function resetPractice(){
+  practiceMode=false;practiceIdx=0;practiceErrors=0;
+  clearAllHighlights();
+  document.getElementById('practiceBtn').style.display='none';
+  document.getElementById('retryBtn').style.display='none';
+  document.getElementById('s1-feedback').style.display='none';
+  document.getElementById('pianoNote').textContent='—';
+  document.getElementById('pianoNoteSub').textContent='點「示範音階」先聽，再跟著彈！';
+  if(s1RoundsDone<s1RoundsNeeded) updateS1RoundHUD();
+}
+
+function retryPractice(){
+  practiceMode=false;
+  demoScale();
+}
+
+function handleKeyPress(noteKey,el){
+  playFluteSound(FREQ[noteKey]||440,.45);
+  el.classList.add('pressed');
+  setTimeout(()=>el.classList.remove('pressed'),160);
+  document.getElementById('pianoNote').textContent=ZH[noteKey.replace(/\d/,'')]||noteKey.replace(/\d/,'');
+  document.getElementById('pianoNoteSub').textContent=noteKey;
+  if(!practiceMode)return;
+  const expected=currentScale[practiceIdx];
+  if(!expected)return;
+  if(noteKey===expected.key){
+    el.classList.add('highlight-user');
+    setTimeout(()=>el.classList.remove('highlight-user'),380);
+    practiceIdx++;
+    showS1Status();
+    if(practiceIdx>=currentScale.length){
+      // Completed this scale!
+      practiceMode=false;
+      s1RoundsDone++;
+      const type=document.getElementById('scaleType').value;
+      if(type==='major') s1MajorDone=true;
+      else s1MinorDone=true;
+      addScore(10);
+      const fb=document.getElementById('s1-feedback');
+      fb.style.display='block';fb.style.color='var(--teal)';
+      const root=document.getElementById('scaleSelect').value;
+      if(s1RoundsDone>=s1RoundsNeeded){
+        fb.textContent=`🎉 完美！3 個調性全部完成！第一關得分 +${10*s1RoundsNeeded} = ${10*s1RoundsNeeded} 分！`;
+        document.getElementById('s1-status').style.display='none';
+        setTimeout(()=>{
+          showVictory({
+            emoji:'🎹',
+            title:'第一關通關！',
+            msg:`你完成了 3 個調性的音階跟彈（含大調與小調）！第一關總得分 30 分。快去挑戰聽音訓練吧！`,
+            ctas:[STAGE_CTAS[0],STAGE_CTAS[1],STAGE_CTAS[2]],
+            callback(){
+              unlockStage(2);
+              jumpStage(2);
+              renderPromos('s2-promo');
+              initEarStage();
+            }
+          });
+        },700);
+      } else {
+        fb.textContent=`✅ ${root} ${type==='major'?'大調':'小調'} 完成！(${s1RoundsDone}/${s1RoundsNeeded}) +10 分 → 準備下一個調！`;
+        setTimeout(()=>{loadNewRound();demoScale();},1500);
+      }
+    } else {
+      const fb=document.getElementById('s1-feedback');
+      fb.style.display='block';fb.style.color='var(--teal)';
+      const nextN=currentScale[practiceIdx];
+      fb.textContent=`✓ 正確！→ 下一個：${ZH[nextN.name]} (${nextN.key}) 鍵盤：${PIANO_NOTES.find(p=>p.note===nextN.key)?.kb?.toUpperCase()||''}`;
+    }
+  } else {
+    el.classList.add('wrong-flash');
+    setTimeout(()=>el.classList.remove('wrong-flash'),280);
+    practiceErrors++;
+    resetStreak();
+    const fb=document.getElementById('s1-feedback');
+    fb.style.display='block';fb.style.color='var(--rose)';
+    fb.textContent=`✗ 錯了！應該是：${ZH[expected.name]} (${expected.key})  鍵盤：${PIANO_NOTES.find(p=>p.note===expected.key)?.kb?.toUpperCase()||''}`;
+    if(practiceErrors>=4){
+      practiceMode=false;
+      fb.textContent='😅 再聽一遍示範吧！按「重新示範」！';
+      document.getElementById('retryBtn').style.display='inline-block';
+      document.getElementById('s1-status').style.display='none';
+    }
+  }
+}
+
+function clearAllHighlights(){
+  document.querySelectorAll('.key').forEach(k=>{
+    k.classList.remove('highlight-show','highlight-user','wrong-flash','pressed');
+  });
+}
+
+// Init: build piano and load first random round
+buildPiano();
+loadNewRound();
+
+// ════════════════════════════════════════════════
+//  STAGE 2 — EAR TRAINING
+// ════════════════════════════════════════════════
+const EAR_POOL=['C4','D4','E4','F4','G4','A4','B4','C5','D5','E5','Db4','Eb4','Gb4','Ab4','Bb4'];
+const EAR_NAMES={
+  'C4':'Do (C)','D4':'Re (D)','E4':'Mi (E)','F4':'Fa (F)','G4':'Sol (G)','A4':'La (A)','B4':'Si (B)',
+  'C5':'Do (C高)','D5':'Re (D高)','E5':'Mi (E高)',
+  'Db4':'Do# (Db)','Eb4':'Re# (Eb)','Gb4':'Fa# (Gb)','Ab4':'Sol# (Ab)','Bb4':'La# (Bb)'
+};
+
+let earCorrect=0,earCurrentNote=null,earAnswered=false,earQCount=0;
+let earHistory=[];
+
+function initEarStage(){
+  earCorrect=0;earQCount=0;earHistory=[];earAnswered=false;
+  buildEarProgress();
+  nextEarQ();
+}
+
+function buildEarProgress(){
+  const el=document.getElementById('earProgress');
+  el.innerHTML='';
+  for(let i=0;i<8;i++){
+    const d=document.createElement('div');
+    d.className='lp-dot'+(i<earCorrect?' done':i===earQCount&&earQCount<8?' current':'');
+    d.textContent=i+1;
+    d.id='ep-'+i;
+    el.appendChild(d);
+  }
+}
+function updateEarProgress(){
+  for(let i=0;i<8;i++){
+    const d=document.getElementById('ep-'+i);
+    if(!d)return;
+    d.className='lp-dot'+(i<earCorrect?' done':i===earQCount&&earQCount<8?' current':'');
+  }
+}
+
+function nextEarQ(){
+  earAnswered=false;
+  document.getElementById('earNextBtn').style.display='none';
+  document.getElementById('ear-feedback').style.display='none';
+
+  let note,attempts=0;
+  do{
+    note=EAR_POOL[Math.floor(Math.random()*EAR_POOL.length)];
+    attempts++;
+    if(attempts>20)break;
+    const last5=earHistory.slice(-5);
+    const unique=new Set([...last5,note]).size;
+    if(last5.length<5||unique>=3)break;
+  }while(true);
+  earCurrentNote=note;
+  earHistory.push(note);
+
+  const wrongs=EAR_POOL.filter(n=>n!==note).sort(()=>Math.random()-.5).slice(0,3);
+  const choices=[note,...wrongs].sort(()=>Math.random()-.5);
+  document.getElementById('earChoices').innerHTML=choices.map(n=>`
+    <button class="ear-btn" onclick="checkEar('${n}',this)">${EAR_NAMES[n]||n}</button>`).join('');
+  document.getElementById('earHint').textContent=`第 ${earQCount+1}/8 題 — 點播放後選音！`;
+}
+
+function playEarNote(){
+  if(earCurrentNote&&FREQ[earCurrentNote]) playFluteSound(FREQ[earCurrentNote],.9);
+}
+
+function checkEar(chosen,btn){
+  if(earAnswered)return;
+  earAnswered=true;
+  document.querySelectorAll('.ear-btn').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('ear-feedback');
+  fb.style.display='block';
+  earQCount++;
+
+  if(chosen===earCurrentNote){
+    btn.classList.add('correct');
+    earCorrect++;
+    addScore(8);
+    updateEarProgress();
+    fb.style.color='var(--teal)';
+    fb.textContent=`🎉 正確！是 ${EAR_NAMES[earCurrentNote]}！+8 分`;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.ear-btn').forEach(b=>{
+      if(b.textContent.trim()===EAR_NAMES[earCurrentNote])b.classList.add('correct');
+    });
+    fb.style.color='var(--rose)';
+    fb.textContent=`😅 答錯了，正確是 ${EAR_NAMES[earCurrentNote]}！`;
+  }
+
+  if(earQCount>=8){
+    // Always advance after 8 questions regardless of score
+    const s2pts=earCorrect*8;
+    setTimeout(()=>{
+      showVictory({
+        emoji:'👂',
+        title:'第二關完成！',
+        msg:`你答對了 ${earCorrect}/8 題，本關得 ${s2pts} 分（滿分64）。累計 ${score} 分。繼續前往樂理測驗！`,
+        ctas:[STAGE_CTAS[2],STAGE_CTAS[3],STAGE_CTAS[0]],
+        callback(){
+          unlockStage(3);
+          jumpStage(3);
+          renderPromos('s3-promo');
+          initTheoryStage();
+        }
+      });
+    },700);
+  } else {
+    document.getElementById('earNextBtn').style.display='inline-block';
+  }
+}
+
+
+// ════════════════════════════════════════════════
+//  STAGE 3 — THEORY  (8 banks × 8 questions)
+// ════════════════════════════════════════════════
+const THEORY_BANKS=[
+  // Bank A — 基礎樂理
+  [
+    {q:'長笛屬於哪一類樂器？',opts:['弦樂器','銅管樂器','木管樂器','打擊樂器'],ans:2,exp:'長笛依發聲原理（氣流振動邊稜）歸類為木管樂器，現代長笛多以金屬製成，但分類不變。'},
+    {q:'一個全音等於幾個半音？',opts:['1個','2個','3個','4個'],ans:1,exp:'半音是最小音程單位；全音 = 2個半音。例：C→D是全音，C→C#是半音。'},
+    {q:'4/4 拍號中，分子「4」代表？',opts:['以四分音符為一拍','每小節有4拍','全音符持續4拍','以全音符為一拍'],ans:1,exp:'4/4 中分子=每小節拍數，分母=以幾分音符為一拍。所以4/4=每小節4拍、以四分音符為一拍。'},
+    {q:'「Allegro」的速度約為？',opts:['40-60 BPM','70-90 BPM','120-168 BPM','200+ BPM'],ans:2,exp:'Allegro（義大利語「快樂地」）代表快速，約120-168 BPM。常見速度術語：Largo→Andante→Moderato→Allegro→Presto。'},
+    {q:'高音譜號五線譜第一線（最底線）是哪個音？',opts:['C','D','E','F'],ans:2,exp:'高音譜號五線由下至上：E-G-B-D-F，可用「Every Good Boy Does Fine」記憶。'},
+    {q:'長笛的標準最低音是？',opts:['B3','C4（中央C）','A3','G3'],ans:1,exp:'現代長笛標準最低音是 C4（中央C），加了B腳管的長笛可達B3。'},
+    {q:'哪個音號表示「漸強」？',opts:['＜（crescendo）','＞（decrescendo）','p（piano）','ff（fortissimo）'],ans:0,exp:'＜ 形狀由窄到寬，代表漸強（crescendo）；＞ 由寬到窄，代表漸弱（decrescendo/diminuendo）。'},
+    {q:'C大調音階包含哪些升降號？',opts:['1個升號','2個降號','沒有升降號','1個降號'],ans:2,exp:'C大調是白鍵音階，完全不含升降號，這也是最入門的調性。'},
+  ],
+  // Bank B — 長笛專項
+  [
+    {q:'長笛演奏者稱為？',opts:['flutist / flautist','violinist','pianist','clarinetist'],ans:0,exp:'長笛演奏者英文是 flutist（美式）或 flautist（英式），皆正確。'},
+    {q:'長笛的吹口孔稱為？',opts:['reed（簧片）','embouchure hole（吹口孔）','bell（喇叭口）','key（按鍵）'],ans:1,exp:'長笛靠氣流打在 embouchure hole（吹口孔）邊緣振動發聲，這是木管樂器中唯一不用簧片的。'},
+    {q:'長笛哪個部分最靠近吹奏者的嘴？',opts:['尾管','管體','頭管','腳管'],ans:2,exp:'長笛分三節：頭管（含吹口孔）、管體（大部分按鍵）、尾管/腳管（低音鍵）。演奏時頭管靠近嘴。'},
+    {q:'長笛的最高音域大約到？',opts:['G5','C6','D7','A8'],ans:2,exp:'現代長笛的音域從C4（或B3）到D7，高音域音色明亮輕盈，是管弦樂團木管組音域最高的樂器。'},
+    {q:'「vibrato」在長笛演奏中是指？',opts:['快速交替演奏兩音','音量的快速起伏','音高的輕微波動','舌奏技巧'],ans:2,exp:'Vibrato（顫音）是音高做規律性微小起伏，讓音色更富表情、歌唱性。長笛通常用橫膈膜控制vibrato。'},
+    {q:'長笛「超吹」（overblowing）可以讓音高？',opts:['降低一個八度','升高一個八度','升高一個五度','維持不變'],ans:1,exp:'長笛超吹（吹氣壓力加大、嘴型改變）可讓泛音升高一個八度，是演奏高音域的主要技法。'},
+    {q:'哪種演奏法讓舌頭快速重複點擊發出「tu-tu-tu」聲？',opts:['legato（連奏）','staccato（斷奏）','flutter tongue（喉音顫奏）','double tongue（雙吐）'],ans:3,exp:'Double tongue（雙吐）用「tu-ku」交替發音，triple tongue用「tu-tu-ku」，可達到極快的斷奏效果。'},
+    {q:'長笛的管體材質最常見的是？',opts:['木材','塑膠','金屬合金（鎳銀、純銀等）','竹子'],ans:2,exp:'現代西洋長笛管體多以鎳銀合金（入門）、純銀（進階）、金（高階）製作，音色從明亮到溫暖各有不同。'},
+  ],
+  // Bank C — 音程與和弦
+  [
+    {q:'C 到 G 的音程是？',opts:['三度','四度','五度（完全五度）','六度'],ans:2,exp:'C-G 之間有 7 個半音，稱為完全五度（Perfect 5th），是最穩定的和諧音程之一。'},
+    {q:'大三和弦（Major Triad）由哪些音程組成？',opts:['大三度+小三度','小三度+大三度','大三度+大三度','完全四度+大三度'],ans:0,exp:'大三和弦=根音+大三度+完全五度，即「大三度（4半音）+小三度（3半音）」的疊置。'},
+    {q:'八度（Octave）包含幾個半音？',opts:['6個','8個','10個','12個'],ans:3,exp:'一個八度 = 12個半音。例如C4到C5之間有12個半音，但它們擁有相同的音名。'},
+    {q:'「協和音程」指的是？',opts:['聽起來緊張、不穩定的音程','聽起來穩定、悅耳的音程','只有同音（一度）','音量相同的兩個音'],ans:1,exp:'協和音程（Consonant Interval）聽起來穩定悅耳，包含：完全一、四、五、八度，以及大/小三、六度。'},
+    {q:'E 到 F 之間是？',opts:['全音','半音','大二度','小三度'],ans:1,exp:'E-F之間只有半音（沒有黑鍵），與B-C同樣是鋼琴白鍵上的半音位置，是初學重要概念。'},
+    {q:'七和弦（Seventh Chord）是由幾個音構成？',opts:['2個','3個','4個','5個'],ans:2,exp:'七和弦由4個音構成：根音、三音、五音、七音。常見的有屬七和弦（G7）、大七和弦（Cmaj7）。'},
+    {q:'「轉位」（Inversion）指的是？',opts:['和弦升調','改變和弦中音的排列順序','演奏更快','重複一個段落'],ans:1,exp:'和弦轉位是把非根音放在最低聲部。一轉（第一轉位）把三音放最低；二轉（第二轉位）把五音放最低。'},
+    {q:'大調（Major）和自然小調（Natural Minor）的主要差異是？',opts:['音符數量不同','音階音程結構不同','節拍不同','演奏速度不同'],ans:1,exp:'大調音程結構：全全半全全全半；自然小調：全半全全半全全。這造成情緒差異：大調明亮、小調暗沉。'},
+  ],
+  // Bank D — 記譜法
+  [
+    {q:'全音符在4/4拍中占幾拍？',opts:['1拍','2拍','4拍','8拍'],ans:2,exp:'全音符（Whole Note）在4/4拍中占滿4拍，是最長的基本音符。二分音符2拍、四分音符1拍、八分音符半拍。'},
+    {q:'「#」記號叫做？',opts:['降號（flat）','升號（sharp）','還原號（natural）','延長記號'],ans:1,exp:'「#」是升號（Sharp），使音高升半音；「b」是降號（Flat），使音高降半音；「♮」是還原號，取消升降。'},
+    {q:'反覆記號（||：…：||）表示？',opts:['這段要演奏兩倍快','重複演奏這段','這段很重要','停止演奏'],ans:1,exp:'反覆記號（Repeat Sign）表示兩個點朝向的區段需重複演奏一次。是簡化樂譜記寫的常用符號。'},
+    {q:'「fine」在樂譜上表示？',opts:['演奏到這裡為止','越來越快','越來越強','重新開始'],ans:0,exp:'「fine」（義大利語「結束」）標示曲子的終止處，通常配合「D.C.」（Da Capo，回到開頭）使用。'},
+    {q:'「p」是哪個力度記號？',opts:['forte（強）','piano（弱）','pianissimo（極弱）','mezzo-forte（中強）'],ans:1,exp:'力度記號：pp（pianissimo=極弱）、p（piano=弱）、mp（mezzo-piano=中弱）、mf（中強）、f（強）、ff（極強）。'},
+    {q:'附點四分音符的時值等於？',opts:['1拍','1.5拍','2拍','3拍'],ans:1,exp:'附點使音符延長原時值的一半。四分音符=1拍，附點四分音符=1+0.5=1.5拍。'},
+    {q:'「C」（大C拍號）等同於哪個拍號？',opts:['2/2','3/4','4/4','6/8'],ans:2,exp:'「C」（Common Time）等同於 4/4 拍；「¢」（Cut Time / Alla Breve）等同於 2/2 拍，以二分音符為一拍。'},
+    {q:'「legato」演奏法的標示是？',opts:['斷奏點（dot above note）','弧線（slur）','重音（accent ＞）','顫音（tr）'],ans:1,exp:'Legato（連奏）用弧線（slur）標示，表示音符間要圓滑連接不分離；staccato（斷奏）用點標示。'},
+  ],
+  // Bank E — 音樂史與風格
+  [
+    {q:'巴洛克時期（Baroque）大約是哪個年代？',opts:['900-1200年','1600-1750年','1820-1900年','1900-1970年'],ans:1,exp:'巴洛克時期約1600-1750年，代表作曲家有巴赫（Bach）、韓德爾（Handel）、維瓦第（Vivaldi）。'},
+    {q:'古典時期最著名的長笛協奏曲作曲家之一是？',opts:['貝多芬','莫札特','蕭邦','德布西'],ans:1,exp:'莫札特（Mozart）創作了兩首著名長笛協奏曲（K.313, K.314），至今仍是長笛學習的重要曲目。'},
+    {q:'「Impressionism（印象主義）」音樂以哪位作曲家最具代表性？',opts:['貝多芬','巴赫','德布西','布拉姆斯'],ans:2,exp:'德布西（Debussy）是音樂印象主義代表，其長笛作品《牧神午後前奏曲》是長笛重要里程碑。'},
+    {q:'「Syrinx」（潘神之笛）是誰的長笛獨奏作品？',opts:['莫札特','德布西','莫爾頓','魏多'],ans:1,exp:'德布西的「Syrinx」（1913）是音樂會長笛獨奏的第一首重要現代作品，約3分鐘，充滿印象派色彩。'},
+    {q:'管弦樂團中，長笛通常坐在哪個位置？',opts:['最後排弦樂旁','銅管中間','木管聲部的第一排','打擊樂前方'],ans:2,exp:'長笛位於木管聲部第一排（最靠近指揮），因為音量較輕盈，需要在最前排才能平衡音量。'},
+    {q:'爵士音樂中，長笛的地位如何？',opts:['幾乎不使用','相當罕見，偶而作為特殊色彩','普遍作為主奏樂器','等同薩克斯風'],ans:1,exp:'長笛在爵士樂中作為特殊音色使用，如Herbie Mann、Hubert Laws等爵士長笛大師讓長笛在爵士中發光。'},
+    {q:'台灣有哪種傳統樂器與西洋長笛屬同族？',opts:['二胡','簫/橫笛','琵琶','揚琴'],ans:1,exp:'中國的簫（直吹）與橫笛（橫吹）與西洋長笛同屬邊稜音氣鳴樂器，都靠氣流打在邊緣發聲。'},
+    {q:'「室內樂（Chamber Music）」通常指幾人演奏？',opts:['1人','2-9人','10-20人','20人以上'],ans:1,exp:'室內樂通常指2-9人的小型合奏，每個聲部一人擔任，如奏鳴曲（2人）、三重奏（3人）、四重奏（4人）。'},
+  ],
+  // Bank F — 節奏與拍號
+  [
+    {q:'「Syncopation（切分節奏）」是指？',opts:['只演奏強拍','重音落在弱拍或拍點之間','完全按照強弱規律','越來越快的節奏'],ans:1,exp:'切分音（Syncopation）把重音刻意移到弱拍，製造意外感和律動感，是爵士、拉丁音樂的重要元素。'},
+    {q:'6/8 拍與 3/4 拍的主要差異是？',opts:['音符數不同','強弱拍組織不同（6/8是兩組三連，3/4是三個單拍）','速度不同','音高不同'],ans:1,exp:'6/8有兩個強拍中心（強-弱弱-次強-弱弱），律動偏複拍；3/4有三個等分強拍，律動偏簡拍。'},
+    {q:'「Rubato」表示？',opts:['固定在一個速度','速度嚴格遞增','演奏者可自由伸縮速度','重複某段'],ans:2,exp:'Rubato（義大利語「偷」）表示演奏者可根據音樂情緒自由調整速度快慢，常見於蕭邦、浪漫時期作品。'},
+    {q:'「3連音（Triplet）」是指？',opts:['三個不同音高','在原本2拍的位置平均放入3個音','速度變成3倍','三人合奏'],ans:1,exp:'三連音是在原拍子單位內平均分配3個音，例如四分音符三連音=3個音共佔1拍，每個音約0.33拍。'},
+    {q:'「accelerando（accel.）」表示？',opts:['漸慢','漸快','保持速度','突然停止'],ans:1,exp:'Accelerando（義大利語）表示逐漸加快速度；反義詞是ritardando（rit.）或rallentando（rall.），代表漸慢。'},
+    {q:'「Fermata（延長記號）」的形狀是？',opts:['像閃電','像眼睛（帶點的弧線）','像箭頭','像波浪線'],ans:1,exp:'Fermata（𝄐）形似有點的眼睛弧線，標示在音符上表示延長該音，延長多久由演奏者或指揮決定。'},
+    {q:'「alla marcia」表示？',opts:['像搖籃曲般柔和','像進行曲般有力','越來越弱','非常快速'],ans:1,exp:'alla marcia（義大利語「如進行曲」）表示用進行曲風格演奏，步調穩健有力，通常是2/4或4/4拍。'},
+    {q:'5/4 拍常見的強弱分組是？',opts:['3+2 或 2+3','1+4','4+1','均等5拍'],ans:0,exp:'5/4拍通常分成「3+2」或「2+3」兩種分組，柴可夫斯基《悲愴》第二樂章是5/4拍的著名例子。'},
+  ],
+  // Bank G — 長笛技巧進階
+  [
+    {q:'「harmonic（泛音）」在長笛上如何演奏？',opts:['按下所有孔','只按低音孔但吹出高次泛音','不按孔加上特殊嘴型','用舌頭拍打吹口'],ans:1,exp:'長笛泛音技法：按低音指法但以高壓氣流+嘴型調整吹出泛音列中的高音，可製造透明飄渺的音色。'},
+    {q:'「Jet whistle」是什麼技法？',opts:['極強的長音','用力吹氣製造的刺耳高頻音效','快速音階','靜音演奏'],ans:1,exp:'Jet whistle是現代技法，用極快氣流突然吹入吹口，產生刺耳的空氣聲音效，常見於現代音樂。'},
+    {q:'「circular breathing（循環呼吸）」的意義是？',opts:['呼吸越來越深','同時用鼻子吸氣、嘴巴吹氣，不間斷演奏','在圓形音樂廳演奏','輪流換氣的重奏技巧'],ans:1,exp:'循環呼吸讓演奏者可以無限持續音，需要訓練：用面頰儲存空氣繼續吹奏的同時，用鼻子快速補吸氣。'},
+    {q:'長笛演奏「extended techniques（延伸技法）」包含哪些？',opts:['只有泛音','只有flutter tongue','多聲（multiphonics）、泛音、嘴唇顫音等多種技法','只是更快的音階'],ans:2,exp:'延伸技法包含：多聲（同時發出兩音）、泛音、flutter tongue（喉音顫奏）、key clicks（按鍵聲）、歌唱+吹奏等。'},
+    {q:'「pianissimo possibile（ppp）」表示？',opts:['可能的最快速度','盡可能地弱奏','越來越弱直到停止','用弱音器演奏'],ans:1,exp:'ppp（pianissimo possibile）是演奏力度指示中「可能的最弱」，比pp還要更弱。這是對演奏者控制力的極大考驗。'},
+    {q:'正確的長笛「Embouchure（嘴型）」是？',opts:['嘴唇緊閉','下嘴唇輕搭吹口孔邊緣，氣流向下打','嘴巴完全包住吹口','用牙齒咬住吹口'],ans:1,exp:'正確嘴型：下嘴唇輕搭在吹口孔前緣，讓氣流斜向下打在對面孔緣。嘴角微微收緊，維持均勻氣流。'},
+    {q:'「tone color（音色）」可以通過什麼改變？',opts:['只能換長笛來改變','通過嘴型、氣速、氣壓、角度的調整','只能靠動態（強弱）','只有速度影響音色'],ans:1,exp:'音色受：嘴型（embouchure）、氣速、氣壓、長笛角度、下唇覆蓋吹口比例等多種因素影響，是長笛藝術的核心。'},
+    {q:'長笛「intonation（音準）」最常用什麼調整？',opts:['只能換調音器','拉出/推入頭管長度 + 嘴型微調','換不同材質的長笛','只用耳機聽'],ans:1,exp:'音準調整：長期靠拉出/推入頭管（調整整體音高），演奏中靠嘴型（embouchure）和氣速做即時微調。'},
+  ],
+  // Bank H — 認識長笛玩家工作室 / myirflute
+  [
+    {q:'長笛玩家工作室的網站是？',opts:['flutemaster.tw','myrflute.com','flutegamer.net','playflute.asia'],ans:1,exp:'長笛玩家工作室的官方網站是 myrflute.com，提供豐富的長笛學習資源、文章、課程與商品。'},
+    {q:'@flutegamer 在台灣以哪種方式分享長笛知識最著名？',opts:['電視節目','部落格文章＋社群媒體','廣播電台','純實體課程'],ans:1,exp:'長笛玩家工作室透過部落格、YouTube、社群媒體等數位平台分享長笛學習知識，服務全球華人學習者。'},
+    {q:'「長笛玩家工作室」的數字指法中，大拇指用哪個符號表示？',opts:['0','T（Thumb）','b','×'],ans:1,exp:'長笛數字指法中，左手大拇指用「T」（Thumb）表示，按下時記為T，不按時省略。'},
+    {q:'長笛數字指法中，「1234」表示？',opts:['右手4根手指','左手4根手指（食指到小指）','兩手共4根手指','4個按鍵的編號'],ans:1,exp:'長笛數字指法：左手1=食指、2=中指、3=無名指、4=小指。左右手以「/」分隔，如「1234/25」。'},
+    {q:'「C音」在長笛玩家工作室的數字指法中，第一八度的記法是？',opts:['12345','0/0','1234/234C','全不按'],ans:2,exp:'根據長笛指法表，C4的主要指法為「1234/234C」（C表示C鍵）；同時有相似指法「1234/234C#」版本。'},
+    {q:'學習長笛最重要的基礎練習是？',opts:['立刻練難曲','每天長音（tone）練習+音階','只練快速音群','每天只練半小時曲子'],ans:1,exp:'長音練習建立音色和氣息控制；音階練習建立手指靈活度和音感。這是所有長笛大師每天必練的基礎。'},
+    {q:'長笛「保養」最重要的日常動作是？',opts:['每天上油','演奏後用通條擦乾管內水氣','每週拆解清洗','每月換墊片'],ans:1,exp:'每次演奏後用通條（cleaning rod）穿上布巾擦拭管內水氣，防止水分損壞音墊。這是最重要的日常保養。'},
+    {q:'想加入長笛玩家工作室的學習社群，可以透過？',opts:['寫信到郵局','加入官方LINE＋訂閱電子報','電話訂閱','只能面對面報名'],ans:1,exp:'歡迎加入長笛玩家工作室官方LINE社群，以及訂閱電子報，獲得最新課程、文章、限定優惠等資訊！'},
+  ],
+];
+
+let theoryCorrect=0;
+let theoryQs=[];// 8 selected questions
+let theoryIdx=-1;
+let theoryAnswered=false;
+
+function initTheoryStage(){
+  theoryCorrect=0;theoryIdx=-1;theoryAnswered=false;
+  // Pick 1 question from each bank, shuffle order
+  theoryQs=THEORY_BANKS.map(bank=>bank[Math.floor(Math.random()*bank.length)]).sort(()=>Math.random()-.5);
+  buildTheoryProgress();
+  document.getElementById('theoryNextBtn').textContent='開始測驗 →';
+  document.getElementById('theoryContent').innerHTML='';
+  document.getElementById('theoryProg').style.width='0%';
+}
+
+function buildTheoryProgress(){
+  const el=document.getElementById('theoryProgress');
+  el.innerHTML='';
+  for(let i=0;i<8;i++){
+    const d=document.createElement('div');
+    d.className='lp-dot'+(i<theoryCorrect?' done':i===theoryCorrect?' current':'');
+    d.textContent=i+1;
+    d.id='tp-'+i;
+    el.appendChild(d);
+  }
+}
+function updateTheoryProgress(){
+  for(let i=0;i<8;i++){
+    const d=document.getElementById('tp-'+i);
+    if(!d)return;
+    d.className='lp-dot'+(i<theoryCorrect?' done':i===theoryCorrect?' current':'');
+  }
+  document.getElementById('theoryProg').style.width=(theoryCorrect/8*100)+'%';
+}
+
+function nextTheoryQ(){
+  theoryIdx++;
+  if(theoryIdx>=8){
+    // Shouldn't get here normally; reset
+    initTheoryStage();return;
+  }
+  theoryAnswered=false;
+  const q=theoryQs[theoryIdx];
+  document.getElementById('theoryNextBtn').style.display='none';
+  document.getElementById('theoryContent').innerHTML=`
+    <div class="q-card">
+      <div class="q-text">Q${theoryIdx+1}. ${q.q}</div>
+      <div class="q-opts">
+        ${q.opts.map((opt,i)=>`
+          <button class="q-opt" onclick="checkTheory(${i},${q.ans},this,'${encodeURIComponent(q.exp)}')">
+            <span class="opt-letter">${['A','B','C','D'][i]}</span>${opt}
+          </button>`).join('')}
+      </div>
+    </div>`;
+}
+
+function checkTheory(chosen,correct,btn,expEnc){
+  if(theoryAnswered)return;
+  theoryAnswered=true;
+  document.querySelectorAll('.q-opt').forEach(b=>b.disabled=true);
+  const exp=decodeURIComponent(expEnc);
+  if(chosen===correct){
+    btn.classList.add('correct');
+    theoryCorrect++;
+    addScore(12);
+    updateTheoryProgress();
+  } else {
+    document.querySelectorAll('.q-opt')[correct].classList.add('correct');
+    btn.classList.add('wrong');
+  }
+  const expEl=document.createElement('div');
+  expEl.className='explanation';
+  expEl.innerHTML='💡 '+exp;
+  btn.closest('.q-opts').after(expEl);
+
+  const nb=document.getElementById('theoryNextBtn');
+  if(theoryIdx<7){
+    nb.style.display='inline-block';
+    nb.textContent='下一題 →';
+    nb.onclick=nextTheoryQ;
+  } else {
+    // All 8 done — always advance
+    const s3pts=theoryCorrect*12;
+    nb.style.display='none';
+    setTimeout(()=>{
+      showVictory({
+        emoji:'📚',
+        title:'第三關完成！',
+        msg:`你答對了 ${theoryCorrect}/8 題，本關得 ${s3pts} 分（滿分96）。累計 ${score} 分。最後一關長笛指法大挑戰！`,
+        ctas:[STAGE_CTAS[0],STAGE_CTAS[2],STAGE_CTAS[3]],
+        callback(){
+          unlockStage(4);
+          jumpStage(4);
+          renderPromos('s4-promo');
+          initFluteStage();
+        }
+      });
+    },600);
+  }
+}
+
+// ════════════════════════════════════════════════
+//  STAGE 4 — FLUTE FINGERING  (SVG diagram, no-repeat)
+//  Layout follows myrflute.com / @flutegamer chart
+//  Left hand: 5 holes (special positions)
+//  Right hand: 8 holes (special shapes)
+//  b = flat symbol
+// ════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════
+//  STAGE 4 — FLUTE FINGERING  (SVG diagram, no-repeat)
+//  Layout follows myrflute.com / @flutegamer chart
+//  Left hand: 5 holes  (L1=below midpoint of L2/L3, L5=upper-right 45° of L4)
+//  Right hand: 8 holes — R1=key2(circle), R2=keyA(voval), R3=key3(circle),
+//              R4=keyB(voval), R5=key4(circle), R6=key5(circle),
+//              R7=keyC#(teardrop), R8=keyC(two stacked hoval)
+//  holes index: [L1,L2,L3,L4,L5, R1(2),R2(A),R3(3),R4(B),R5(4),R6(5),R7(C#),R8(C)]
+//                 0  1  2  3  4    5     6     7     8     9    10    11    12
+// ════════════════════════════════════════════════
+
+const FLUTE_DATA=[
+  // '1234 / 234C'  → L:1234  R: 2✓ A✗ 3✓ B✗ 4✓ 5✗ C#✗ C✓
+  {note:'Do (C)',   code:'1234 / 234C',   holes:[1,1,1,1,0, 1,0,1,0,1,0,0,1], name:'C4',  desc:'Do — 最常見 C 指法'},
+  // '1234 / 234'   → L:1234  R: 2✓ A✗ 3✓ B✗ 4✓ 5✗ C#✗ C✗
+  {note:'Re (D)',   code:'1234 / 234',    holes:[1,1,1,1,0, 1,0,1,0,1,0,0,0], name:'D4',  desc:'Re — 左手1234 右手234'},
+  // '1234 / 235'   → L:1234  R: 2✓ A✗ 3✓ B✗ 4✗ 5✓ C#✗ C✗
+  {note:'Mi (E)',   code:'1234 / 235',    holes:[1,1,1,1,0, 1,0,1,0,0,1,0,0], name:'E4',  desc:'Mi — 右手235'},
+  // '1234 / 25'    → L:1234  R: 2✓ A✗ 3✗ B✗ 4✗ 5✓ C#✗ C✗
+  {note:'Fa (F)',   code:'1234 / 25',     holes:[1,1,1,1,0, 1,0,0,0,0,1,0,0], name:'F4',  desc:'Fa — 右手25'},
+  // '1234 / 5'     → L:1234  R: 2✗ A✗ 3✗ B✗ 4✗ 5✓ C#✗ C✗
+  {note:'Sol (G)',  code:'1234 / 5',      holes:[1,1,1,1,0, 0,0,0,0,0,1,0,0], name:'G4',  desc:'Sol — 右手只按5'},
+  // '123 / 5'      → L:123   R: 5✓
+  {note:'La (A)',   code:'123 / 5',       holes:[1,1,1,0,0, 0,0,0,0,0,1,0,0], name:'A4',  desc:'La — 左手123 右手5'},
+  // '12 / 5'       → L:12    R: 5✓
+  {note:'Si (B)',   code:'12 / 5',        holes:[1,1,0,0,0, 0,0,0,0,0,1,0,0], name:'B4',  desc:'Si — 左手12 右手5'},
+  // '1234 / 234C#' → L:1234  R: 2✓ A✗ 3✓ B✗ 4✓ 5✗ C#✓ C✗
+  {note:'Do# (Db)', code:'1234 / 234C#',  holes:[1,1,1,1,0, 1,0,1,0,1,0,1,0], name:'Db4', desc:'Do# — C#鍵指法'},
+  // '1234 / 2345'  → L:1234  R: 2✓ A✗ 3✓ B✓ 4✓ 5✓ C#✗ C✗
+  {note:'Reb (Eb)', code:'1234 / 2345',   holes:[1,1,1,1,0, 1,0,1,1,1,1,0,0], name:'Eb4', desc:'Reb — 右手2345'},
+  // '1234 / 45'    → L:1234  R: 2✗ A✗ 3✗ B✗ 4✓ 5✓ C#✗ C✗
+  {note:'Fa# (Gb)', code:'1234 / 45',     holes:[1,1,1,1,0, 0,0,0,0,1,1,0,0], name:'Gb4', desc:'Fa# — 右手45'},
+  // '12345 / 5'    → L:12345 R: 5✓
+  {note:'Sol# (Ab)',code:'12345 / 5',     holes:[1,1,1,1,1, 0,0,0,0,0,1,0,0], name:'Ab4', desc:'Sol# — 左手12345 右手5'},
+  // 'b12 / 5'      → L:b+12  R: 5✓
+  {note:'Lab (Bb)', code:'b12 / 5',       holes:[1,1,0,0,0, 0,0,0,0,0,1,0,0], name:'Bb4', desc:'Lab (Sib) — b鍵+12 右手5'},
+];
+
+// ── SVG layout constants ──
+const TUBE_Y=65, TUBE_H=30;
+const R=10;
+
+// ── Left hand (5 holes) ──
+// L2,L3,L4 on tube centre; L1 below midpoint of L2–L3
+// L5: closer to centre (not too far right), slightly left of L4's right edge
+const LH=[
+  {cx:232,cy:TUBE_Y+22,r:R,  label:'1'},  // L1 — below midpoint of L2(210)–L3(254), same y as R2/R4
+  {cx:210,cy:TUBE_Y,   r:R,  label:'2'},  // L2
+  {cx:254,cy:TUBE_Y,   r:R,  label:'3'},  // L3
+  {cx:294,cy:TUBE_Y,   r:R,  label:'4'},  // L4
+  {cx:305,cy:TUBE_Y-13,r:7,  label:'5'},  // L5 — upper-right 45° of L4, closer to centre-left (smaller)
+];
+
+// ── Right hand (9 entries) ──
+// R1=key2 circle, R2=keyA small-circle (between R1 & R3, lower — same y as L1),
+// R3=key3 circle, R4=keyB small-circle (between R3 & R5, lower — same y as L1/R2),
+// R5=key4 circle, R6=key5 small-circle (lower-right 45° of R5),
+// R7=keyC# teardrop, R8a/R8b=keyC stacked-hoval pair
+const RH_BASE_X=358;
+const RH=[
+  {cx:RH_BASE_X+0,   cy:TUBE_Y,    type:'circle',  r:R,       label:'2'},   // R1
+  {cx:RH_BASE_X+31,  cy:TUBE_Y+22, type:'circle',  r:8,       label:'A'},   // R2 — small, below midpoint R1/R3, same y as L1
+  {cx:RH_BASE_X+62,  cy:TUBE_Y,    type:'circle',  r:R,       label:'3'},   // R3
+  {cx:RH_BASE_X+93,  cy:TUBE_Y+22, type:'circle',  r:8,       label:'B'},   // R4 — small, below midpoint R3/R5, same y as L1/R2
+  {cx:RH_BASE_X+124, cy:TUBE_Y,    type:'circle',  r:R,       label:'4'},   // R5
+  {cx:RH_BASE_X+147, cy:TUBE_Y+17, type:'circle',  r:8,       label:'5'},   // R6 — small, lower-right 45° of R5
+  {cx:RH_BASE_X+180, cy:TUBE_Y,    type:'teardrop',r:R,       label:'C#'},  // R7
+  {cx:RH_BASE_X+210, cy:TUBE_Y-8,  type:'hoval',   rx:10,ry:7,label:'C'},   // R8-top
+  {cx:RH_BASE_X+210, cy:TUBE_Y+8,  type:'hoval',   rx:10,ry:7,label:''},    // R8-bottom
+];
+
+function holeFill(closed){
+  return closed
+    ? 'url(#holeGold)'
+    : '#0d0a1a';
+}
+function holeStroke(closed){
+  return closed ? '#ffd700' : '#5a4a2a';
+}
+
+function renderFluteHolesSVG(holes, svgEl, scale=1){
+  // holes: array of 13 booleans [L0..L4, R0..R7]
+  const W=680,H=130;
+  const s=scale;
+  let html=`<defs>
+    <linearGradient id="tubeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4af37"/>
+      <stop offset="45%" stop-color="#9a7010"/>
+      <stop offset="100%" stop-color="#6b4e0a"/>
+    </linearGradient>
+    <radialGradient id="holeGold" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffe87a"/>
+      <stop offset="100%" stop-color="#c9a84c"/>
+    </radialGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <!-- Mouthpiece -->
+  <ellipse cx="52" cy="${TUBE_Y}" rx="36" ry="${TUBE_H/2+3}" fill="#8B6914" stroke="#c9a84c" stroke-width="1.5"/>
+  <ellipse cx="52" cy="${TUBE_Y}" rx="20" ry="${TUBE_H/2-1}" fill="#5a3f0a"/>
+  <!-- Embouchure hole -->
+  <ellipse cx="72" cy="${TUBE_Y}" rx="8" ry="5" fill="#1a0e05" stroke="#c9a84c" stroke-width="1"/>
+  <!-- Tube body -->
+  <rect x="80" y="${TUBE_Y-TUBE_H/2}" width="545" height="${TUBE_H}" rx="4" fill="url(#tubeGrad)" stroke="#c9a84c" stroke-width="1.5"/>
+  <!-- Bell -->
+  <rect x="622" y="${TUBE_Y-TUBE_H/2-4}" width="36" height="${TUBE_H+8}" rx="6" fill="#8B6914" stroke="#c9a84c" stroke-width="1.2"/>
+  <!-- Hand divider -->
+  <line x1="345" y1="${TUBE_Y-TUBE_H/2+4}" x2="345" y2="${TUBE_Y+TUBE_H/2-4}" stroke="#c9a84c" stroke-width="1" stroke-dasharray="3,3" opacity=".6"/>`;
+
+  // ── Left hand holes (indices 0-4) ──
+  LH.forEach((h,i)=>{
+    const closed=holes[i]||false;
+    const fill=holeFill(closed);
+    const stroke=holeStroke(closed);
+    const glow=closed?'filter="url(#glow)"':'';
+    html+=`<circle cx="${h.cx}" cy="${h.cy}" r="${h.r}" fill="${fill}" stroke="${stroke}" stroke-width="1.8" ${glow}/>`;
+    if(closed)html+=`<circle cx="${h.cx-h.r*.3}" cy="${h.cy-h.r*.3}" r="${h.r*.25}" fill="rgba(255,255,200,.4)"/>`;
+    html+=`<text x="${h.cx}" y="${h.cy+h.r+13}" text-anchor="middle" fill="#8a6a30" font-size="9" font-family="serif">${h.label}</text>`;
+  });
+  // L label
+  html+=`<text x="230" y="${TUBE_Y+TUBE_H/2+26}" text-anchor="middle" fill="#7a6230" font-size="10" font-family="serif">左手</text>`;
+
+  // ── Right hand holes (indices 5-12) ──
+  // ── Right hand holes ──
+  // RH has 9 entries: indices 0-6 map to holes[5..11], indices 7-8 are both C key = holes[12]
+  RH.forEach((h,i)=>{
+    // holes index: first 7 RH slots = holes[5+i], last 2 (stacked C) = holes[12]
+    const holeIdx = i <= 6 ? 5+i : 12;
+    const closed=holes[holeIdx]||false;
+    const fill=holeFill(closed);
+    const stroke=holeStroke(closed);
+    const glow=closed?'filter="url(#glow)"':'';
+    if(h.type==='circle'){
+      html+=`<circle cx="${h.cx}" cy="${h.cy}" r="${h.r}" fill="${fill}" stroke="${stroke}" stroke-width="1.8" ${glow}/>`;
+      if(closed)html+=`<circle cx="${h.cx-h.r*.3}" cy="${h.cy-h.r*.3}" r="${h.r*.25}" fill="rgba(255,255,200,.4)"/>`;
+    } else if(h.type==='voval'){
+      html+=`<ellipse cx="${h.cx}" cy="${h.cy}" rx="${h.rx}" ry="${h.ry}" fill="${fill}" stroke="${stroke}" stroke-width="1.8" ${glow}/>`;
+      if(closed)html+=`<ellipse cx="${h.cx-h.rx*.3}" cy="${h.cy-h.ry*.3}" rx="${h.rx*.25}" ry="${h.ry*.25}" fill="rgba(255,255,200,.4)"/>`;
+    } else if(h.type==='hoval'){
+      html+=`<ellipse cx="${h.cx}" cy="${h.cy}" rx="${h.rx}" ry="${h.ry}" fill="${fill}" stroke="${stroke}" stroke-width="1.8" ${glow}/>`;
+      if(closed)html+=`<ellipse cx="${h.cx-h.rx*.3}" cy="${h.cy-h.ry*.3}" rx="${h.rx*.25}" ry="${h.ry*.25}" fill="rgba(255,255,200,.4)"/>`;
+    } else if(h.type==='teardrop'){
+      const r2=h.r;
+      html+=`<path d="M${h.cx},${h.cy-r2} A${r2},${r2} 0 1,1 ${h.cx-.1},${h.cy-r2} Q${h.cx+r2+2},${h.cy+r2} ${h.cx},${h.cy+r2*1.6} Q${h.cx-r2-2},${h.cy+r2} ${h.cx},${h.cy-r2}Z" fill="${fill}" stroke="${stroke}" stroke-width="1.8" ${glow}/>`;
+    }
+    // Labels: show for all except the bottom hoval (R8-bottom, index 8, label='')
+    if(h.label){
+      const labelY = h.type==='hoval' ? h.cy+h.ry+11 : h.cy+(h.r||h.ry||10)+13;
+      html+=`<text x="${h.cx}" y="${labelY}" text-anchor="middle" fill="#8a6a30" font-size="9" font-family="serif">${h.label}</text>`;
+    }
+  });
+  // R label
+  html+=`<text x="470" y="${TUBE_Y+TUBE_H/2+26}" text-anchor="middle" fill="#7a6230" font-size="10" font-family="serif">右手</text>`;
+
+  svgEl.innerHTML=html;
+}
+
+// Mini SVG for choice cards
+function renderFluteMiniSVG(holes){
+  // Mini tube
+  let html=`<rect x="5" y="22" width="310" height="14" rx="3" fill="#8B6914" stroke="#c9a84c" stroke-width="1"/>`;
+
+  // Left 5 holes: L2(x=22),L3(x=40),L4(x=56) on tube; L1(x=31,y=38) below L2/L3 mid; L5(x=64,y=14) upper-right of L4
+  const lPos=[
+    {x:31,y:38,type:'circle'}, // L1 below midpoint
+    {x:22,y:29,type:'circle'}, // L2
+    {x:40,y:29,type:'circle'}, // L3
+    {x:56,y:29,type:'circle'}, // L4
+    {x:63,y:18,type:'small'},  // L5 upper-right
+  ];
+  lPos.forEach((p,i)=>{
+    const cl=holes[i];
+    const r=p.type==='small'?5:6;
+    html+=`<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${cl?'#c9a84c':'#0d0a1a'}" stroke="${cl?'#ffd700':'#5a4a2a'}" stroke-width="1.1"/>`;
+  });
+
+  // divider
+  html+=`<line x1="74" y1="16" x2="74" y2="40" stroke="#c9a84c" stroke-width="1" stroke-dasharray="2,2" opacity=".6"/>`;
+
+  // Right: 7 distinct keys + C pair at end
+  // R1(2)=circle, R2(A)=voval, R3(3)=circle, R4(B)=voval, R5(4)=circle, R6(5)=circle, R7(C#)=teardrop, R8(C)=hoval pair
+  const rDefs=[
+    {x:82, y:29,type:'circle', hi:5},
+    {x:96, y:29,type:'voval',  hi:6},
+    {x:110,y:29,type:'circle', hi:7},
+    {x:124,y:29,type:'voval',  hi:8},
+    {x:139,y:29,type:'circle', hi:9},
+    {x:153,y:29,type:'circle', hi:10},
+    {x:167,y:29,type:'teardrop',hi:11},
+    {x:181,y:23,type:'hoval',  hi:12},
+    {x:181,y:35,type:'hoval',  hi:12},
+  ];
+  rDefs.forEach(p=>{
+    const cl=holes[p.hi]||false;
+    const f=cl?'#c9a84c':'#0d0a1a', s=cl?'#ffd700':'#5a4a2a';
+    if(p.type==='circle')    html+=`<circle cx="${p.x}" cy="${p.y}" r="6" fill="${f}" stroke="${s}" stroke-width="1.1"/>`;
+    else if(p.type==='voval')html+=`<ellipse cx="${p.x}" cy="${p.y}" rx="4" ry="6" fill="${f}" stroke="${s}" stroke-width="1.1"/>`;
+    else if(p.type==='hoval')html+=`<ellipse cx="${p.x}" cy="${p.y}" rx="8" ry="5" fill="${f}" stroke="${s}" stroke-width="1.1"/>`;
+    else                     html+=`<circle cx="${p.x}" cy="${p.y}" r="6" fill="${f}" stroke="${s}" stroke-width="1.1"/>`;
+  });
+
+  return `<svg width="200" height="52" viewBox="0 0 200 52">${html}</svg>`;
+}
+
+let fluteCorrect=0,fluteQCount=0,fluteCurrentQ=null,fluteAnswered=false;
+let fluteUsedNotes=[];
+const FLUTE_TOTAL_Q=5;
+
+function initFluteStage(){
+  fluteCorrect=0;fluteQCount=0;fluteAnswered=false;fluteUsedNotes=[];
+  buildFluteProgress();
+  nextFluteQ();
+}
+
+function buildFluteProgress(){
+  const el=document.getElementById('fluteProgress');
+  el.innerHTML='';
+  for(let i=0;i<FLUTE_TOTAL_Q;i++){
+    const d=document.createElement('div');
+    d.className='lp-dot'+(i<fluteCorrect?' done':i===fluteQCount&&fluteQCount<FLUTE_TOTAL_Q?' current':'');
+    d.textContent=i+1;
+    d.id='fp-'+i;
+    el.appendChild(d);
+  }
+}
+function updateFluteProgress(){
+  for(let i=0;i<FLUTE_TOTAL_Q;i++){
+    const d=document.getElementById('fp-'+i);
+    if(!d)return;
+    d.className='lp-dot'+(i<fluteCorrect?' done':i===fluteQCount&&fluteQCount<FLUTE_TOTAL_Q?' current':'');
+  }
+}
+
+function nextFluteQ(){
+  fluteAnswered=false;
+  document.getElementById('fluteNextBtn').style.display='none';
+  document.getElementById('flute-feedback').style.display='none';
+
+  let q,attempts=0;
+  do{
+    q=FLUTE_DATA[Math.floor(Math.random()*FLUTE_DATA.length)];
+    attempts++;
+  }while(fluteUsedNotes.includes(q.note)&&attempts<40);
+  if(fluteUsedNotes.length>=FLUTE_DATA.length) fluteUsedNotes=[];
+  fluteUsedNotes.push(q.note);
+  fluteCurrentQ=q;
+
+  document.getElementById('fluteQuizNote').textContent=q.note;
+  document.getElementById('fluteQuizHint').textContent=`第 ${fluteQCount+1}/${FLUTE_TOTAL_Q} 題 — ${q.desc} 選出正確的數字指法！`;
+  renderFluteHolesSVG(q.holes, document.getElementById('fluteDiagramSvg'));
+
+  const wrong=FLUTE_DATA.filter(f=>f.code!==q.code).sort(()=>Math.random()-.5).slice(0,3);
+  const choices=[q,...wrong].sort(()=>Math.random()-.5);
+  document.getElementById('fluteChoices').innerHTML=choices.map(c=>`
+    <button class="flute-choice" onclick="checkFlute('${encodeURIComponent(c.code)}','${encodeURIComponent(fluteCurrentQ.code)}',this)">
+      <div class="fc-code">${c.code}</div>
+      <div class="choice-svg-wrap">${renderFluteMiniSVG(c.holes)}</div>
+      <div class="fc-note">${c.note}</div>
+    </button>`).join('');
+}
+
+function checkFlute(chosenEnc,correctEnc,btn){
+  if(fluteAnswered)return;
+  fluteAnswered=true;
+  document.querySelectorAll('.flute-choice').forEach(b=>b.disabled=true);
+  const chosen=decodeURIComponent(chosenEnc);
+  const correct=decodeURIComponent(correctEnc);
+  const fb=document.getElementById('flute-feedback');
+  fb.style.display='block';
+  fluteQCount++;
+
+  if(chosen===correct){
+    btn.classList.add('correct');
+    fluteCorrect++;
+    addScore(24);
+    updateFluteProgress();
+    fb.style.color='var(--teal)';
+    fb.textContent=`🎉 正確！${fluteCurrentQ.note} 的指法是「${correct}」！+24 分`;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.flute-choice').forEach(b=>{
+      const codeEl=b.querySelector('.fc-code');
+      if(codeEl&&codeEl.textContent.trim()===correct)b.classList.add('correct');
+    });
+    fb.style.color='var(--rose)';
+    fb.textContent=`😅 答錯了！正確指法是「${correct}」`;
+  }
+
+  if(fluteQCount>=FLUTE_TOTAL_Q){
+    setTimeout(()=>showFinalVictory(),700);
+  } else {
+    document.getElementById('fluteNextBtn').style.display='inline-block';
+  }
+}
+
+function playFluteQuizNote(){
+  if(fluteCurrentQ&&FREQ[fluteCurrentQ.name])playFluteSound(FREQ[fluteCurrentQ.name],.9);
+}
+
+function showFinalVictory(){
+  const totalPts=score;
+  const isMaster=totalPts>=300;
+  const ov=document.getElementById('victoryOverlay');
+  const box=ov.querySelector('.victory-box');
+
+  // Level name
+  const lv=LEVELS.slice().reverse().find(([p])=>totalPts>=p);
+  const lvName=lv?lv[1]:'初學前';
+
+  // Emoji & title by level
+  let emoji,title,mainMsg,encourageMsg;
+  if(isMaster){
+    emoji='🏆'; title='恭喜！你是長笛大師！';
+    mainMsg=`你以 <b style="color:var(--gold-light);font-size:1.3rem">${totalPts}</b> 分完成全部挑戰，達到「<b style="color:var(--teal)">${lvName}</b>」等級！`;
+    encourageMsg='你對音樂的熱情和努力令人佩服。繼續在長笛的世界深耕吧！';
+  } else if(totalPts>=190){
+    emoji='🎓'; title='表現很棒！差一點點！';
+    mainMsg=`你獲得 <b style="color:var(--gold-light);font-size:1.3rem">${totalPts}</b> 分，等級「<b style="color:var(--teal)">${lvName}</b>」`;
+    encourageMsg='你已經超越大多數初學者！只差一步就能達到大師（300分）。繼續練習，你一定可以！';
+  } else if(totalPts>=94){
+    emoji='🎵'; title='繼續加油！你進步了！';
+    mainMsg=`你獲得 <b style="color:var(--gold-light);font-size:1.3rem">${totalPts}</b> 分，等級「<b style="color:var(--teal)">${lvName}</b>」`;
+    encourageMsg='你已踏入初學者階段！樂理和指法需要更多練習，可以加入 LINE 社群或報名課程尋求專業協助。';
+  } else {
+    emoji='🌱'; title='好的開始！繼續前進！';
+    mainMsg=`你獲得 <b style="color:var(--gold-light);font-size:1.3rem">${totalPts}</b> 分，等級「<b style="color:var(--teal)">${lvName}</b>」`;
+    encourageMsg='別灰心！每位大師都從這裡出發。建議加入官方 LINE 社群或報名課程，讓老師帶你快速突破瓶頸！';
+  }
+
+  box.style.borderColor=isMaster?'var(--gold)':'var(--accent)';
+  box.style.boxShadow=isMaster?'0 0 60px rgba(201,168,76,.5)':'0 0 40px rgba(139,92,246,.4)';
+
+  document.getElementById('victoryEmoji').textContent=emoji;
+  document.getElementById('victoryTitle').textContent=title;
+  document.getElementById('victoryMsg').innerHTML=`
+    <p style="margin-bottom:8px;">${mainMsg}</p>
+    <p style="font-size:.9rem;color:var(--text);line-height:1.7;margin-bottom:12px;">${encourageMsg}</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:4px;">
+      <span style="font-size:.75rem;color:var(--gold-dim)">分數：30+64+96+120 = 滿分310</span>
+      <span style="font-size:.75rem;color:var(--gold-dim)">你的得分：${totalPts}</span>
+    </div>`;
+
+  const ctaEl=document.getElementById('victoryCTA');
+  ctaEl.innerHTML=`
+    <a href="https://myrflute.com" class="cta-link" style="color:#0fd4c0;border-color:#0fd4c440;background:#0fd4c414"
+       onclick="event.preventDefault();window.open('https://myrflute.com','_blank')">
+      🌐 前往 myrflute.com 長笛玩家工作室
+    </a>
+    <a href="#" class="cta-link" style="color:#0fd4c0;border-color:#0fd4c440;background:#0fd4c414"
+       onclick="event.preventDefault();toastCTA('#','長笛入門線上課程')">
+      🎓 報名長笛線上課程
+    </a>
+    <a href="#" class="cta-link" style="color:#f472b6;border-color:#f472b640;background:#f472b614"
+       onclick="event.preventDefault();toastCTA('#','加入官方LINE')">
+      💬 加入官方 LINE 尋求解答
+    </a>
+    <a href="#" class="cta-link" style="color:#34d399;border-color:#34d39940;background:#34d39914"
+       onclick="event.preventDefault();toastCTA('#','訂閱電子報')">
+      📮 訂閱長笛玩家電子報
+    </a>
+    <button class="cta-link" style="color:var(--gold);border-color:var(--border);background:rgba(201,168,76,.1);cursor:pointer;border:1px solid;padding:12px 20px;border-radius:14px;font-family:inherit;font-size:.9rem;width:100%;margin-top:4px;"
+       onclick="restartGame()">
+      🔄 再來一遍！重新測驗
+    </button>`;
+
+  ov._cb=null;
+  ov.classList.add('show');
+
+  if(isMaster){
+    for(let i=0;i<25;i++) setTimeout(()=>spawnNote([24,20,12,8,10][Math.floor(Math.random()*5)]),i*90);
+  }
+}
+
+function restartGame(){
+  // Reset all state
+  score=0;streak=0;currentStage=1;
+  s1RoundsDone=0;s1UsedScales=[];s1MajorDone=false;s1MinorDone=false;
+  earCorrect=0;earQCount=0;earHistory=[];
+  theoryCorrect=0;theoryIdx=-1;
+  fluteCorrect=0;fluteQCount=0;fluteUsedNotes=[];
+  stageUnlocked.fill(false);stageUnlocked[0]=true;
+
+  // Reset stage map UI
+  [2,3,4].forEach(n=>{
+    const node=document.getElementById('sn-'+n);
+    if(node){node.classList.remove('unlocked','done','active');node.onclick=null;}
+    const sc=document.getElementById('sc-'+(n-1));
+    if(sc)sc.classList.remove('lit');
+  });
+  document.getElementById('sn-1').classList.remove('done');
+
+  // Clear promo sections so they re-render
+  ['s2-promo','s3-promo','s4-promo'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.innerHTML='';
+  });
+
+  closeVictory();
+  updateHUD();
+  jumpStage(1);
+  loadNewRound();
+  setTimeout(demoScale,400);
+}
+
+// ════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════
+updateHUD();
+
+// Promo rotation in toast tray every 15s
+setInterval(()=>{
+  rotatePomros();
+}, 15000);
+
+// Welcome sequence
+setTimeout(()=>{
+  queueToast({tag:'🎵 歡迎',title:'聽示範→跟著彈3個調即可過關！',cta:'',url:'#',color:'var(--teal)'},1);
+},1500);
+setTimeout(()=>{
+  queueToast({tag:'💡 鍵盤',title:'電腦鍵盤 A W S E D F T G Y H U J K 可彈奏！',cta:'',url:'#',color:'var(--accent)'},2);
+},3500);
+</script>
+</body>
+</html>
